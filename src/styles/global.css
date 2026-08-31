@@ -1,0 +1,193 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------------------
+ * Design tokens (shadcn/ui convention). Swapped by the .dark class on <html>.
+ * Light = default; sidepanel/popup/options each call setTheme() at boot.
+ * ------------------------------------------------------------------------- */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 224 71% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
+    --primary: 258 90% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 9% 15%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 258 90% 96%;
+    --accent-foreground: 258 60% 28%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%;
+    --input: 220 13% 85%;
+    --ring: 258 90% 60%;
+    --radius: 0.625rem;
+  }
+
+  .dark {
+    --background: 224 71% 4%;
+    --foreground: 210 20% 98%;
+    --card: 224 47% 7%;
+    --card-foreground: 210 20% 98%;
+    --popover: 224 47% 7%;
+    --popover-foreground: 210 20% 98%;
+    --primary: 258 90% 66%;
+    --primary-foreground: 258 60% 10%;
+    --secondary: 218 32% 12%;
+    --secondary-foreground: 210 20% 92%;
+    --muted: 218 32% 12%;
+    --muted-foreground: 217 10% 60%;
+    --accent: 258 54% 16%;
+    --accent-foreground: 258 90% 84%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 217 19% 16%;
+    --input: 217 19% 22%;
+    --ring: 258 90% 66%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: theme('fontFamily.sans');
+    font-size: 14px;
+    overflow: hidden;
+  }
+}
+
+@layer utilities {
+  /* Thin scrollbars for the chat pane without pulling in a scrollbar lib. */
+  .scroll-area {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+  .scroll-area::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scroll-area::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border));
+    border-radius: 9999px;
+  }
+  .scroll-area::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* Glassmorphism surfaces */
+  .glass-panel {
+    background: hsla(var(--card) / 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsla(var(--border) / 0.6);
+  }
+
+  .glass-card {
+    background: hsla(var(--card) / 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid hsla(var(--border) / 0.4);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Glowing and gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #38bdf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .gradient-brand {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
+  }
+
+  .glow-indigo {
+    box-shadow: 0 0 20px -5px rgba(99, 102, 241, 0.4);
+  }
+
+  .glow-violet {
+    box-shadow: 0 0 20px -5px rgba(139, 92, 246, 0.4);
+  }
+}
+
+/* Animations */
+@keyframes caret-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px -3px rgba(99, 102, 241, 0.3);
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 25px 0px rgba(139, 92, 246, 0.5);
+    opacity: 0.85;
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes aurora {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-float {
+  animation: float-slow 4s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2.5s infinite;
+}
+
+.animate-aurora {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(139, 92, 246, 0.12), rgba(6, 182, 212, 0.08));
+  background-size: 200% 200%;
+  animation: aurora 8s ease infinite;
+}
+
+.streaming-caret::after {
+  content: '▍';
+  margin-left: 1px;
+  color: #818cf8;
+  animation: caret-blink 0.8s steps(1) infinite;
+}
