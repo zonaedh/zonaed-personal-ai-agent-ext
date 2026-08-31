@@ -233,11 +233,11 @@ export function Composer() {
       : 'Follow up… (Enter to send, Shift+Enter for newline)';
 
   return (
-    <div className="border-t bg-card/40 backdrop-blur-md px-3 pb-3 pt-2">
-      <div className="mx-auto flex max-w-3xl flex-col gap-2">
+    <div className="border-t border-border/40 bg-card/50 backdrop-blur-xl px-4 pb-4 pt-2.5">
+      <div className="mx-auto flex max-w-4xl flex-col gap-2">
         <ContextChips slots={contextSlots} onRemove={(i) => void removeContextSlot(i)} />
 
-        <div className="rounded-xl border border-border/80 bg-background/90 shadow-sm transition-all focus-within:border-indigo-500/50 focus-within:ring-2 focus-within:ring-indigo-500/20">
+        <div className="rounded-2xl border border-border/80 bg-background/95 shadow-md shadow-black/5 transition-all focus-within:border-indigo-500/60 focus-within:ring-2 focus-within:ring-indigo-500/20">
           <Textarea
             ref={textareaRef}
             value={draft}

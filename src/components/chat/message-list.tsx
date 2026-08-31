@@ -47,7 +47,7 @@ export function MessageList({
 
   return (
     <div ref={scrollRef} onScroll={handleScroll} className="scroll-area flex-1 overflow-y-auto px-4 py-4">
-      <div className="mx-auto flex max-w-3xl flex-col gap-4">
+      <div className="mx-auto flex max-w-4xl flex-col gap-4">
         {messages.map((msg, i) => (
           <div key={msg.id}>
             <MessageItem

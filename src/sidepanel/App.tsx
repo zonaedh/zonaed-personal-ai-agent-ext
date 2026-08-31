@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { readActiveTabPage } from '@/lib/chrome';
 import { pendingTaskStorage } from '@/lib/storage';
 import { isGeminiModel } from '@/lib/gemini';
@@ -9,6 +9,7 @@ import { useOllamaStore } from '@/store/ollama-store';
 import { useSettingsStore } from '@/store/settings-store';
 import { useToastStore } from '@/store/toast-store';
 import { ChatHeader } from '@/components/chat/chat-header';
+import { Sidebar } from '@/components/chat/sidebar';
 import { Composer } from '@/components/chat/composer';
 import { HistoryDrawer } from '@/components/chat/history-drawer';
 import { MessageList } from '@/components/chat/message-list';
@@ -16,15 +17,16 @@ import { OllamaOffline } from '@/components/chat/ollama-offline';
 import { ToolDialogs } from '@/components/tools';
 import { Toaster } from '@/components/ui/toaster';
 import { Skeleton } from '@/components/ui/skeleton';
-
 import { PinGate } from '@/components/auth/pin-gate';
 
 /**
- * The primary UI surface (chrome.sidePanel).
- * Boot sequence: settings -> Ollama status/models -> chat (history or pending
- * task) -> consume any queued popup/context-menu task.
+ * The primary UI surface (ChatGPT-style Layout).
+ * Left: Collapsible Sidebar with New Chat, Search, Playbooks & History.
+ * Right: Full Canvas with Model Switcher, Messages & Floating Composer.
  */
 export function SidePanelApp() {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
   const settingsReady = useSettingsStore((s) => s.ready);
   const isLocked = useSettingsStore((s) => s.isLocked);
   const pinLockEnabled = useSettingsStore((s) => s.pinLockEnabled);
@@ -53,6 +55,18 @@ export function SidePanelApp() {
       }
     };
     void boot();
+  }, []);
+
+  // Keyboard shortcut: Ctrl+K or Cmd+K for New Chat
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        void useChatStore.getState().newSession();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   useEffect(() => {
@@ -102,23 +116,36 @@ export function SidePanelApp() {
     Boolean(deepSeekApiKey);
 
   return (
-    <div className="flex h-screen w-full flex-col bg-background text-foreground overflow-hidden">
-      <ChatHeader />
-      {ollamaStatus === 'offline' && !isCloudActive ? (
-        <OllamaOffline />
-      ) : (
-        <>
-          <MessageList
-            messages={messages}
-            isGenerating={isGenerating}
-            onRegenerate={() => void useChatStore.getState().regenerateLast()}
-            onRetry={() => void useChatStore.getState().retryError()}
-            onSuggestion={handleSuggestion}
-          />
-          <Composer />
-        </>
-      )}
-      <HistoryDrawer />
+    <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans">
+      {/* ChatGPT-style Left Sidebar */}
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+      />
+
+      {/* Right Main Chat Canvas (spans entire remaining space) */}
+      <main className="flex flex-1 flex-col h-full min-w-0 bg-background/95 overflow-hidden">
+        <ChatHeader
+          sidebarCollapsed={sidebarCollapsed}
+          onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
+
+        {ollamaStatus === 'offline' && !isCloudActive ? (
+          <OllamaOffline />
+        ) : (
+          <div className="flex flex-1 flex-col min-h-0 overflow-hidden relative">
+            <MessageList
+              messages={messages}
+              isGenerating={isGenerating}
+              onRegenerate={() => void useChatStore.getState().regenerateLast()}
+              onRetry={() => void useChatStore.getState().retryError()}
+              onSuggestion={handleSuggestion}
+            />
+            <Composer />
+          </div>
+        )}
+      </main>
+
       <ToolDialogs />
       <Toaster />
     </div>

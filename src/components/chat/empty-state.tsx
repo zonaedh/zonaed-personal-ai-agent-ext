@@ -208,17 +208,17 @@ export function EmptyState({ onSuggestion }: { onSuggestion: (text: string) => v
         ))}
       </div>
 
-      {/* Categorized Topic Cards */}
-      <div className="grid w-full max-w-md grid-cols-1 gap-2">
+      {/* Categorized Topic Cards - Responsive Wide Grid */}
+      <div className="grid w-full max-w-4xl grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
         {filteredTopics.map((s) => (
           <button
             key={s.id}
             onClick={() => handleTopicClick(s)}
-            className="group flex items-start gap-3 rounded-xl border border-border/60 bg-card/80 p-2.5 text-left backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-500/50 hover:bg-accent/60 hover:shadow-md hover:shadow-indigo-500/5"
+            className="group flex items-start gap-3 rounded-xl border border-border/60 bg-card/80 p-3 text-left backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-500/50 hover:bg-accent/60 hover:shadow-md hover:shadow-indigo-500/5"
           >
             <div
               className={cn(
-                'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-transform group-hover:scale-110',
+                'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-transform group-hover:scale-110 shadow-sm',
                 s.iconBg,
               )}
             >
@@ -230,14 +230,14 @@ export function EmptyState({ onSuggestion }: { onSuggestion: (text: string) => v
                   {s.label}
                 </span>
                 {s.badge ? (
-                  <span className="rounded bg-indigo-500/10 px-1.5 py-0.2 text-[10px] font-bold text-indigo-500 shrink-0">
+                  <span className="rounded bg-indigo-500/10 px-1.5 py-0.5 text-[10px] font-bold text-indigo-500 shrink-0">
                     {s.badge}
                   </span>
                 ) : (
                   <Sparkles className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100 text-indigo-400 shrink-0" />
                 )}
               </div>
-              <p className="mt-0.5 text-[11px] text-muted-foreground line-clamp-1">
+              <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground line-clamp-2">
                 {s.desc}
               </p>
             </div>
