@@ -16,30 +16,51 @@ export interface StreamServerProxyParams {
   signal?: AbortSignal;
 }
 
+export const DEFAULT_PROXY_URL = 'https://zonaed-personal-ai-agent-ext.vercel.app/api';
+
 /**
- * Verify Master PIN against the Vercel backend.
+ * Verify Master PIN against the Vercel backend with automatic fallback.
  */
 export async function verifyServerPin(
   proxyBaseUrl: string,
   pin: string,
 ): Promise<{ ok: boolean; token?: string; error?: string }> {
-  try {
-    const url = `${proxyBaseUrl.replace(/\/$/, '')}/auth`;
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pin }),
-    });
+  const candidates = [
+    proxyBaseUrl,
+    DEFAULT_PROXY_URL,
+    typeof window !== 'undefined' ? `${window.location.origin}/api` : '',
+  ].filter(Boolean);
 
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      return { ok: false, error: data.error || `HTTP ${res.status}` };
+  // Deduplicate candidates
+  const uniqueUrls = Array.from(new Set(candidates));
+
+  let lastError = 'Unable to connect to server proxy.';
+
+  for (const baseUrl of uniqueUrls) {
+    try {
+      const url = `${baseUrl.replace(/\/$/, '')}/auth`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.token) {
+        return { ok: true, token: data.token };
+      }
+      if (res.status === 401) {
+        return { ok: false, error: 'Invalid Master PIN. Please try again.' };
+      }
+      if (data.error) {
+        lastError = data.error;
+      }
+    } catch (err: any) {
+      lastError = err instanceof Error ? err.message : String(err);
     }
-
-    return { ok: true, token: data.token };
-  } catch (err: any) {
-    return { ok: false, error: err instanceof Error ? err.message : String(err) };
   }
+
+  return { ok: false, error: lastError };
 }
 
 /**
@@ -49,7 +70,7 @@ export async function* streamServerProxyChat(
   params: StreamServerProxyParams,
 ): AsyncGenerator<ChatStreamEvent, void, void> {
   const {
-    proxyUrl = 'https://agent.thesharkweb.com/api',
+    proxyUrl = DEFAULT_PROXY_URL,
     sessionToken,
     pin,
     model,

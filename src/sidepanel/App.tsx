@@ -81,12 +81,19 @@ export function SidePanelApp() {
   }
 
   const selectedModel = useOllamaStore((s) => s.selectedModel);
+  const lastModel = useSettingsStore((s) => s.lastModel);
+  const serverProxyUrl = useSettingsStore((s) => s.serverProxyUrl);
+  const pinSessionToken = useSettingsStore((s) => s.pinSessionToken);
   const geminiApiKey = useSettingsStore((s) => s.geminiApiKey);
   const groqApiKey = useSettingsStore((s) => s.groqApiKey);
   const openRouterApiKey = useSettingsStore((s) => s.openRouterApiKey);
   const deepSeekApiKey = useSettingsStore((s) => s.deepSeekApiKey);
 
   const isCloudActive =
+    lastModel === 'auto' ||
+    selectedModel === 'auto' ||
+    Boolean(serverProxyUrl) ||
+    Boolean(pinSessionToken) ||
     isGeminiModel(selectedModel) ||
     isCloudModel(selectedModel) ||
     Boolean(geminiApiKey) ||
@@ -95,7 +102,7 @@ export function SidePanelApp() {
     Boolean(deepSeekApiKey);
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-screen w-full flex-col bg-background text-foreground overflow-hidden">
       <ChatHeader />
       {ollamaStatus === 'offline' && !isCloudActive ? (
         <OllamaOffline />
