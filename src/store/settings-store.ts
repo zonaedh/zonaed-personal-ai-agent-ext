@@ -34,7 +34,7 @@ export const DEFAULT_SETTINGS: Settings = {
   groqApiKey: '',
   openRouterApiKey: '',
   deepSeekApiKey: '',
-  serverProxyUrl: 'https://agent.thesharkweb.com/api',
+  serverProxyUrl: 'https://zonaed-personal-ai-agent-ext.vercel.app/api',
   pinSessionToken: '',
   masterPin: '',
   pinLockEnabled: true,

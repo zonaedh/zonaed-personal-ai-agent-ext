@@ -417,5 +417,9 @@ export async function queuePendingTask(task: ContextTask): Promise<void> {
 }
 
 export async function openOptionsPage(): Promise<void> {
-  await chrome.runtime.openOptionsPage();
+  if (typeof chrome !== 'undefined' && chrome.runtime?.openOptionsPage) {
+    await chrome.runtime.openOptionsPage();
+  } else {
+    window.open('/src/options/index.html', '_blank');
+  }
 }

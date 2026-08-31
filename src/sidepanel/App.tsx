@@ -51,8 +51,10 @@ export function SidePanelApp() {
     const listener = (msg: { type?: string }): void => {
       if (msg?.type === 'TASK_QUEUED') void consumePendingTask();
     };
-    chrome.runtime.onMessage.addListener(listener);
-    return () => chrome.runtime.onMessage.removeListener(listener);
+    if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
+      chrome.runtime.onMessage.addListener(listener);
+      return () => chrome.runtime.onMessage.removeListener(listener);
+    }
   }, []);
 
   useEffect(() => {
