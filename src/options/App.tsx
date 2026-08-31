@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
+  ArrowLeft,
   Brain,
   Check,
   Globe,
@@ -18,6 +19,7 @@ import {
   ToggleRight,
   Trash2,
   User,
+  X,
   Zap,
 } from 'lucide-react';
 import {
@@ -115,11 +117,17 @@ const TABS: TabMeta[] = [
   },
 ];
 
-export function OptionsApp() {
+export interface OptionsAppProps {
+  onClose?: () => void;
+  initialTab?: Tab;
+}
+
+export function OptionsApp({ onClose, initialTab }: OptionsAppProps = {}) {
   const [tab, setTab] = useState<Tab>(() => {
+    if (initialTab) return initialTab;
     const params = new URLSearchParams(window.location.search);
-    const initialTab = params.get('tab') as Tab;
-    return TABS.some((t) => t.id === initialTab) ? initialTab : 'general';
+    const urlTab = params.get('tab') as Tab;
+    return TABS.some((t) => t.id === urlTab) ? urlTab : 'general';
   });
   const ready = useSettingsStore((s) => s.ready);
   const theme = useSettingsStore((s) => s.theme);
@@ -153,29 +161,42 @@ export function OptionsApp() {
   const currentTab: TabMeta = TABS.find((t) => t.id === tab) ?? TABS[0]!;
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex flex-col md:flex-row bg-background text-foreground">
+    <div className="h-screen w-screen overflow-hidden flex flex-col md:flex-row bg-background text-foreground font-sans">
       {/* Left Sidebar Dashboard */}
       <aside className="w-full md:w-64 lg:w-72 shrink-0 border-b md:border-b-0 md:border-r border-border/80 bg-card/60 backdrop-blur-xl flex flex-col justify-between p-4 md:p-5 select-none h-auto md:h-full">
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-5">
           {/* Brand Header */}
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-cyan-400 text-lg font-black text-white shadow-lg shadow-indigo-500/25 ring-2 ring-white/20">
-              Z
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5">
-                <h1 className="text-base font-extrabold tracking-tight gradient-text truncate">
-                  Zonaed AI
-                </h1>
-                <span className="rounded-md bg-indigo-500/10 px-1.5 py-0.2 text-[10px] font-bold text-indigo-500 ring-1 ring-indigo-500/20">
-                  v0.3.0
-                </span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-cyan-400 text-base font-black text-white shadow-lg shadow-indigo-500/25 ring-2 ring-white/20">
+                Z
               </div>
-              <p className="text-[11px] text-muted-foreground truncate">
-                Personal Agent Dashboard
-              </p>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <h1 className="text-sm font-extrabold tracking-tight gradient-text truncate">
+                    Zonaed AI
+                  </h1>
+                  <span className="rounded-md bg-indigo-500/10 px-1.5 py-0.2 text-[9px] font-bold text-indigo-500 ring-1 ring-indigo-500/20">
+                    v0.3.0
+                  </span>
+                </div>
+                <p className="text-[10px] text-muted-foreground truncate">
+                  Personal Agent Dashboard
+                </p>
+              </div>
             </div>
           </div>
+
+          {/* Return to Chat Button if in modal mode */}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-3.5 py-2 text-xs font-bold text-white shadow-md shadow-indigo-500/20 transition-all hover:opacity-95 active:scale-[0.99]"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span>Return to Chat</span>
+            </button>
+          )}
 
           {/* Navigation Items (Clean vertical list, zero scroll) */}
           <nav className="flex flex-row md:flex-col gap-1 overflow-x-auto md:overflow-x-visible pb-1 md:pb-0">
@@ -187,7 +208,7 @@ export function OptionsApp() {
                   key={t.id}
                   onClick={() => setTab(t.id)}
                   className={cn(
-                    'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-semibold transition-all whitespace-nowrap md:whitespace-normal text-left w-full font-sans',
+                    'group flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-semibold transition-all whitespace-nowrap md:whitespace-normal text-left w-full font-sans',
                     active
                       ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25 ring-1 ring-indigo-500'
                       : 'text-muted-foreground hover:bg-accent/70 hover:text-foreground',
@@ -214,14 +235,8 @@ export function OptionsApp() {
               Engine
             </span>
             <span className="font-semibold text-foreground truncate max-w-[120px] font-mono text-[10px]">
-              {lastModel?.includes('gemini') ? 'Gemini 3.7' : lastModel ?? 'Local Ollama'}
+              {lastModel?.includes('gemini') ? 'Gemini 3.7' : lastModel ?? 'Auto Quota Router'}
             </span>
-          </div>
-          <div className="flex items-center justify-between text-[11px] text-muted-foreground px-1">
-            <span className="font-medium">Side Panel</span>
-            <kbd className="rounded-md border bg-muted/60 px-1.5 py-0.5 font-mono text-[10px] text-foreground font-bold shadow-xs">
-              Ctrl+Shift+Z
-            </kbd>
           </div>
         </div>
       </aside>
@@ -229,7 +244,7 @@ export function OptionsApp() {
       {/* Right Main Content Area (Fixed layout with internal scrolling canvas) */}
       <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-muted/15">
         {/* Sticky Top Section Header */}
-        <header className="border-b border-border/60 bg-card/40 backdrop-blur-md px-6 md:px-8 py-4 shrink-0 flex items-center justify-between">
+        <header className="border-b border-border/60 bg-card/40 backdrop-blur-md px-6 md:px-8 py-3.5 shrink-0 flex items-center justify-between">
           <div>
             <h2 className="text-base md:text-lg font-bold text-foreground flex items-center gap-2 font-sans">
               <currentTab.icon className="h-5 w-5 text-indigo-500" />
@@ -239,6 +254,18 @@ export function OptionsApp() {
               {currentTab.description}
             </p>
           </div>
+
+          {onClose && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onClose}
+              className="flex items-center gap-1.5 rounded-xl border-border/80 font-bold hover:bg-accent"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back to Chat</span>
+            </Button>
+          )}
         </header>
 
         {/* Scrollable Content Container */}

@@ -22,6 +22,7 @@ import type {
   ScrapeResult,
 } from '@/shared/types';
 import type { LocalAgentBridge } from '@/shared/bridge';
+import { useSettingsStore } from '@/store/settings-store';
 
 /** On-demand content-script bundle path (resolved from bundle-info.json). */
 let cachedContentScriptUrl: string | null = null;
@@ -417,9 +418,12 @@ export async function queuePendingTask(task: ContextTask): Promise<void> {
 }
 
 export async function openOptionsPage(): Promise<void> {
+  useSettingsStore.getState().openSettings();
   if (typeof chrome !== 'undefined' && chrome.runtime?.openOptionsPage) {
-    await chrome.runtime.openOptionsPage();
-  } else {
-    window.open('/src/options/index.html', '_blank');
+    try {
+      await chrome.runtime.openOptionsPage();
+    } catch {
+      // Handled in-app
+    }
   }
 }

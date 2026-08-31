@@ -18,6 +18,7 @@ import { ToolDialogs } from '@/components/tools';
 import { Toaster } from '@/components/ui/toaster';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PinGate } from '@/components/auth/pin-gate';
+import { OptionsApp } from '@/options/App';
 
 /**
  * The primary UI surface (ChatGPT-style Layout).
@@ -30,6 +31,8 @@ export function SidePanelApp() {
   const settingsReady = useSettingsStore((s) => s.ready);
   const isLocked = useSettingsStore((s) => s.isLocked);
   const pinLockEnabled = useSettingsStore((s) => s.pinLockEnabled);
+  const settingsOpen = useSettingsStore((s) => s.settingsOpen);
+  const closeSettings = useSettingsStore((s) => s.closeSettings);
   const lastModel = useSettingsStore((s) => s.lastModel);
   const serverProxyUrl = useSettingsStore((s) => s.serverProxyUrl);
   const pinSessionToken = useSettingsStore((s) => s.pinSessionToken);
@@ -101,6 +104,10 @@ export function SidePanelApp() {
 
   if (isLocked && pinLockEnabled) {
     return <PinGate onUnlocked={() => useSettingsStore.getState().unlock()} />;
+  }
+
+  if (settingsOpen) {
+    return <OptionsApp onClose={closeSettings} />;
   }
 
   const isCloudActive =

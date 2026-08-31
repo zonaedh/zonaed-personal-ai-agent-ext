@@ -49,15 +49,19 @@ export const DEFAULT_SETTINGS: Settings = {
 interface SettingsState extends Settings {
   /** True once settings were hydrated from chrome.storage.local. */
   ready: boolean;
+  settingsOpen: boolean;
   load(): Promise<void>;
   update(patch: Partial<Settings>): Promise<void>;
   unlock(): void;
   lock(): void;
+  openSettings(): void;
+  closeSettings(): void;
 }
 
 export const useSettingsStore = create<SettingsState>()((set, get) => ({
   ...DEFAULT_SETTINGS,
   ready: true,
+  settingsOpen: false,
 
   unlock() {
     set({ isLocked: false });
@@ -65,6 +69,14 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
 
   lock() {
     set({ isLocked: true });
+  },
+
+  openSettings() {
+    set({ settingsOpen: true });
+  },
+
+  closeSettings() {
+    set({ settingsOpen: false });
   },
 
   async load() {
