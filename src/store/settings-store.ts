@@ -86,11 +86,15 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
     } catch {
       // storage unavailable (e.g. plain-browser dev preview) — use defaults
     }
+    const currentIsLocked = get().isLocked;
+    const isFirstLoad = !get().ready;
     const merged = {
       ...DEFAULT_SETTINGS,
       ...(stored ?? {}),
-      // Automatically lock on new fresh startup if pinLockEnabled is true
-      isLocked: stored?.pinLockEnabled ?? DEFAULT_SETTINGS.pinLockEnabled,
+      // Only enforce initial lock on fresh cold start; never re-lock an active unlocked session
+      isLocked: isFirstLoad
+        ? (stored?.pinLockEnabled ?? DEFAULT_SETTINGS.pinLockEnabled)
+        : currentIsLocked,
     };
     set({ ...merged, ready: true });
     applyTheme(merged.theme);
