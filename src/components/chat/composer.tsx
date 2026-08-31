@@ -187,6 +187,9 @@ export function Composer() {
     }
   };
 
+  const serverProxyUrl = useSettingsStore((s) => s.serverProxyUrl);
+  const pinSessionToken = useSettingsStore((s) => s.pinSessionToken);
+
   const isAuto = selectedModel === 'auto' || !selectedModel;
   const isGemini = isGeminiModel(selectedModel);
   const isCloud = isCloudModel(selectedModel);
@@ -194,6 +197,8 @@ export function Composer() {
   let hasValidEngine = false;
   if (isAuto) {
     hasValidEngine = Boolean(
+      serverProxyUrl ||
+      pinSessionToken ||
       groqApiKey ||
       geminiApiKey ||
       openRouterApiKey ||
@@ -201,18 +206,20 @@ export function Composer() {
       ollamaStatus === 'online',
     );
   } else if (isGemini) {
-    hasValidEngine = Boolean(geminiApiKey);
+    hasValidEngine = Boolean(geminiApiKey || serverProxyUrl || pinSessionToken);
   } else if (isCloud) {
     const { provider } = parseCloudModel(selectedModel ?? '');
     hasValidEngine = Boolean(
-      provider === 'groq'
+      serverProxyUrl ||
+      pinSessionToken ||
+      (provider === 'groq'
         ? groqApiKey
         : provider === 'deepseek'
         ? deepSeekApiKey
-        : openRouterApiKey,
+        : openRouterApiKey),
     );
   } else {
-    hasValidEngine = ollamaStatus === 'online';
+    hasValidEngine = ollamaStatus === 'online' || Boolean(serverProxyUrl);
   }
 
   const canSend = hasValidEngine && !isGenerating;
