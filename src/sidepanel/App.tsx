@@ -28,7 +28,16 @@ export function SidePanelApp() {
   const settingsReady = useSettingsStore((s) => s.ready);
   const isLocked = useSettingsStore((s) => s.isLocked);
   const pinLockEnabled = useSettingsStore((s) => s.pinLockEnabled);
+  const lastModel = useSettingsStore((s) => s.lastModel);
+  const serverProxyUrl = useSettingsStore((s) => s.serverProxyUrl);
+  const pinSessionToken = useSettingsStore((s) => s.pinSessionToken);
+  const geminiApiKey = useSettingsStore((s) => s.geminiApiKey);
+  const groqApiKey = useSettingsStore((s) => s.groqApiKey);
+  const openRouterApiKey = useSettingsStore((s) => s.openRouterApiKey);
+  const deepSeekApiKey = useSettingsStore((s) => s.deepSeekApiKey);
+
   const ollamaStatus = useOllamaStore((s) => s.status);
+  const selectedModel = useOllamaStore((s) => s.selectedModel);
   const messages = useChatStore((s) => s.messages);
   const isGenerating = useChatStore((s) => s.isGenerating);
 
@@ -79,15 +88,6 @@ export function SidePanelApp() {
   if (isLocked && pinLockEnabled) {
     return <PinGate onUnlocked={() => useSettingsStore.getState().unlock()} />;
   }
-
-  const selectedModel = useOllamaStore((s) => s.selectedModel);
-  const lastModel = useSettingsStore((s) => s.lastModel);
-  const serverProxyUrl = useSettingsStore((s) => s.serverProxyUrl);
-  const pinSessionToken = useSettingsStore((s) => s.pinSessionToken);
-  const geminiApiKey = useSettingsStore((s) => s.geminiApiKey);
-  const groqApiKey = useSettingsStore((s) => s.groqApiKey);
-  const openRouterApiKey = useSettingsStore((s) => s.openRouterApiKey);
-  const deepSeekApiKey = useSettingsStore((s) => s.deepSeekApiKey);
 
   const isCloudActive =
     lastModel === 'auto' ||
