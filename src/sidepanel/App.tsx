@@ -51,6 +51,13 @@ export function SidePanelApp() {
       await useSettingsStore.getState().load();
       void useOllamaStore.getState().refresh(true);
       
+      if (
+        typeof window !== 'undefined' &&
+        (window.location.pathname.includes('options') || window.location.search.includes('tab='))
+      ) {
+        useSettingsStore.getState().openSettings();
+      }
+
       // Check if a popup or context-menu task was queued
       const hasTask = await consumePendingTask();
       if (!hasTask) {
