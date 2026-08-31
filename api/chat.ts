@@ -29,6 +29,11 @@ function verifyToken(token: string): boolean {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Master-PIN');
+
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
@@ -37,49 +42,56 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  // 1. PIN Security Check
-  if (MASTER_PIN) {
-    const authHeader = (req.headers.authorization as string) || '';
-    const token = authHeader.replace(/^Bearer\s+/i, '') || (req.headers['x-master-pin'] as string);
-    const isValid = token && (verifyToken(token) || token === MASTER_PIN);
-
-    if (!isValid) {
-      return res.status(401).json({
-        error: 'Unauthorized: Invalid or missing Master PIN. Access restricted to Zonaed AI authorized users.',
-      });
-    }
-  }
-
-  const { model = 'auto', messages = [], systemPrompt = '' } = req.body || {};
-
-  if (!Array.isArray(messages) || messages.length === 0) {
-    return res.status(400).json({ error: 'Messages array is required' });
-  }
-
-  // Setup Server-Sent Events (SSE) streaming headers
-  res.writeHead(200, {
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache, no-transform',
-    Connection: 'keep-alive',
-    'Access-Control-Allow-Origin': '*',
-  });
-
-  const sendEvent = (data: Record<string, unknown>) => {
-    res.write(`data: ${JSON.stringify(data)}\n\n`);
-  };
-
   try {
+    // 1. PIN Security Check
+    if (MASTER_PIN) {
+      const authHeader = (req.headers.authorization as string) || '';
+      const token = authHeader.replace(/^Bearer\s+/i, '') || (req.headers['x-master-pin'] as string);
+      const isValid = token && (verifyToken(token) || token === MASTER_PIN);
+
+      if (!isValid) {
+        return res.status(401).json({
+          error: 'Unauthorized: Invalid or missing Master PIN. Access restricted to Zonaed AI authorized users.',
+        });
+      }
+    }
+
+    let body = req.body;
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch {
+        body = {};
+      }
+    }
+
+    const { model = 'auto', messages = [], systemPrompt = '' } = body || {};
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({ error: 'Messages array is required' });
+    }
+
+    // Setup Server-Sent Events (SSE) streaming headers
+    res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    res.status(200);
+
+    const sendEvent = (data: Record<string, unknown>) => {
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+    };
+
     let resolvedModel = model;
     if (resolvedModel === 'auto') {
-      // Prioritize Gemini 3.6 Flash -> Groq Qwen 27B -> OpenRouter Free
-      if (GEMINI_API_KEY) {
-        resolvedModel = 'gemini-3.6-flash';
-      } else if (GROQ_API_KEY) {
-        resolvedModel = 'groq:qwen/qwen3.6-27b';
+      if (GROQ_API_KEY) {
+        resolvedModel = 'groq:llama-3.3-70b-versatile';
+      } else if (GEMINI_API_KEY) {
+        resolvedModel = 'gemini-3.7-flash';
       } else if (OPENROUTER_API_KEY) {
         resolvedModel = 'openrouter:openrouter/free';
       } else {
-        throw new Error('No API keys configured on Vercel server. Please set GEMINI_API_KEY, GROQ_API_KEY, or OPENROUTER_API_KEY in Vercel settings.');
+        throw new Error('No API keys configured on Vercel server. Please set GROQ_API_KEY or GEMINI_API_KEY in Vercel settings.');
       }
     }
 
@@ -89,7 +101,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         throw new Error('GEMINI_API_KEY is not configured in Vercel environment.');
       }
       const cleanModel = resolvedModel.replace(/^models\//, '');
-      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${cleanModel}:streamGenerateContent?alt=sse&key=${encodeURIComponent(GEMINI_API_KEY)}`;
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${cleanModel}:streamGenerateContent?alt=sse&key=${encodeURIComponent(GEMINI_API_KEY.trim())}`;
 
       const contents = [];
       for (const m of messages) {
@@ -264,10 +276,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     sendEvent({ delta: '', done: true, model: resolvedModel });
     res.end();
   } catch (err: any) {
-    sendEvent({
-      error: err instanceof Error ? err.message : String(err),
-      done: true,
-    });
-    res.end();
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    if (res.headersSent) {
+      res.write(`data: ${JSON.stringify({ error: errorMsg, done: true })}\n\n`);
+      res.end();
+    } else {
+      res.status(500).json({ error: errorMsg });
+    }
   }
 }
