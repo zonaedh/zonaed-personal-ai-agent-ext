@@ -130,7 +130,7 @@ export function SidePanelApp() {
     Boolean(deepSeekApiKey);
 
   return (
-    <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans">
+    <div className="flex h-full h-[100dvh] max-h-[100dvh] w-full bg-background text-foreground overflow-hidden font-sans">
       {/* ChatGPT-style Left Sidebar */}
       <Sidebar
         collapsed={sidebarCollapsed}
@@ -138,7 +138,7 @@ export function SidePanelApp() {
       />
 
       {/* Right Main Chat Canvas (spans entire remaining space) */}
-      <main className="flex flex-1 flex-col h-full min-w-0 bg-background/95 overflow-hidden">
+      <main className="flex flex-1 flex-col h-full min-h-0 min-w-0 bg-background/95 overflow-hidden">
         <ChatHeader
           sidebarCollapsed={sidebarCollapsed}
           onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}

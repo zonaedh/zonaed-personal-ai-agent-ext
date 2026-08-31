@@ -207,7 +207,7 @@ export function Composer() {
   const canSend = hasValidEngine && !isGenerating;
 
   return (
-    <div className="border-t border-border/40 bg-background/80 backdrop-blur-md px-3 sm:px-4 pb-3 sm:pb-4 pt-2 select-none safe-pb">
+    <div className="shrink-0 z-20 border-t border-border/40 bg-background/95 backdrop-blur-md px-3 sm:px-4 pt-2 select-none safe-pb">
       <div className="mx-auto flex max-w-4xl flex-col gap-2.5 sm:gap-3">
         <ContextChips slots={contextSlots} onRemove={(i) => void removeContextSlot(i)} />
 
