@@ -20,6 +20,9 @@ import { buildPersonalizedPreamble, detectAndLearnMemories } from '@/lib/memory-
 import { profileTone } from '@/lib/tone-profiler';
 import { shouldUseDraftMode, buildDraftInstruction, isDraftApproval, buildFullDraftInstruction } from '@/lib/chain-of-draft';
 import { buildTaskHint, buildTaskUserPrompt, taskNeedsContent } from '@/lib/tasks';
+import { exportToGoogleDocs } from '@/lib/marketing-plan';
+import { exportToGoogleSheets } from '@/lib/sheets-export';
+import { parseThinkingContent } from '@/components/chat/thinking-box';
 import { uid } from '@/lib/util';
 import type { ChatAttachment, ChatMessage, ChatSessionMeta, ContextTask } from '@/shared/types';
 import { useOllamaStore } from '@/store/ollama-store';
@@ -67,6 +70,30 @@ function friendlyChatError(err: unknown, model: string): string {
     return 'Ollama timed out (it may still be loading the model). Try again in a moment.';
   }
   return raw || 'Unknown error while generating.';
+}
+
+export type ExportIntent = 'google-doc' | 'google-sheet' | null;
+
+export function detectExportIntent(userText: string): ExportIntent {
+  const lower = userText.toLowerCase();
+
+  // Google Sheet signals
+  if (
+    /\b(google\s*sheet|google\s*sheets|google\s*spreadsheet|in\s*sheet|in\s*sheets|sheets\.new|to\s*sheet|to\s*sheets|sheet\s*e|sheet\s*a)\b/i.test(lower) ||
+    /(গুগল\s*শীট|গুগল\s*শিট|শীটে|শিটে|শীট\s*এ|শিট\s*এ)/i.test(lower)
+  ) {
+    return 'google-sheet';
+  }
+
+  // Google Doc signals
+  if (
+    /\b(google\s*doc|google\s*docs|google\s*document|in\s*doc|in\s*docs|docs\.new|to\s*doc|to\s*docs|doc\s*e|doc\s*a)\b/i.test(lower) ||
+    /(গুগল\s*ডক|ডকে|ডক\s*এ)/i.test(lower)
+  ) {
+    return 'google-doc';
+  }
+
+  return null;
 }
 
 function titleFromMessages(messages: ChatMessage[]): string {
@@ -310,6 +337,7 @@ export const useChatStore = create<ChatState>()((set, get) => {
           contextSlots: slots,
           maxContextChars: effectiveContextChars,
           language: activeLanguage,
+          exportIntent: detectExportIntent(text),
         });
 
         const systemPrompt = [baseSystemPrompt, preamble, draftInstruction].filter(Boolean).join('\n\n');
@@ -401,6 +429,35 @@ export const useChatStore = create<ChatState>()((set, get) => {
           useToastStore.getState().push('error', 'Generation failed', message);
           if (!isCandidateGemini && !isCandidateCloud) void ollama.refresh(true);
           return;
+        }
+      }
+
+      // Feature: Automatic Google Docs / Google Sheets Export when mentioned in prompt
+      if (completedSuccessfully && acc.trim()) {
+        const exportIntent = detectExportIntent(text);
+        const { content: cleanBody } = parseThinkingContent(acc, false);
+        const finalContent = cleanBody.trim() || acc.trim();
+
+        if (exportIntent === 'google-doc') {
+          void exportToGoogleDocs(finalContent).then((res) => {
+            useToastStore.getState().push(
+              'success',
+              '🚀 Google Doc Ready!',
+              res.openedNew
+                ? 'New Google Doc opened. Press Ctrl+V to paste your content.'
+                : 'Switched to open Google Doc. Press Ctrl+V to paste your content.',
+            );
+          });
+        } else if (exportIntent === 'google-sheet') {
+          void exportToGoogleSheets(finalContent).then((res) => {
+            useToastStore.getState().push(
+              'success',
+              '🚀 Google Sheet Ready!',
+              res.openedNew
+                ? 'New Google Sheet opened. Press Ctrl+V to paste table cells.'
+                : 'Switched to open Google Sheet. Press Ctrl+V to paste table cells.',
+            );
+          });
         }
       }
     } finally {

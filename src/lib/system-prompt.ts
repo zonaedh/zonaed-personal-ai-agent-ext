@@ -13,10 +13,11 @@ export interface SystemPromptInput {
   maxContextChars: number;
   taskHint?: string;
   language?: 'en' | 'bn';
+  exportIntent?: 'google-doc' | 'google-sheet' | null;
 }
 
 export function buildSystemPrompt(input: SystemPromptInput): string {
-  const { contextSlots, maxContextChars, taskHint, language = 'en' } = input;
+  const { contextSlots, maxContextChars, taskHint, language = 'en', exportIntent } = input;
   const today = new Date().toISOString().slice(0, 10);
 
   const base = [
@@ -90,6 +91,13 @@ You MUST reply ONLY in clear, concise, professional, and tech-savvy English.
   if (slotBlocks.length > 0) {
     parts.push(`The user attached the following context. Use it when answering:\n\n${slotBlocks.join('\n\n---\n\n')}`);
   }
+
+  if (exportIntent === 'google-doc') {
+    parts.push('[AUTOMATIC EXPORT: GOOGLE DOC REQUESTED]\nThe user requested this output for a Google Doc. Structure your response with clean Markdown headings, bulleted points, and clear sections ready for an executive presentation.');
+  } else if (exportIntent === 'google-sheet') {
+    parts.push('[AUTOMATIC EXPORT: GOOGLE SHEET REQUESTED]\nThe user requested this output for a Google Sheet. Ensure key structured data is presented as a clean Markdown table with headers (| Col 1 | Col 2 |) so it can be parsed cleanly into spreadsheet columns and rows.');
+  }
+
   parts.push(footerReminder);
   return parts.join('\n\n');
 }
