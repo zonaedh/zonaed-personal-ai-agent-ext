@@ -35,7 +35,9 @@ export function PinGate({ onUnlocked }: PinGateProps) {
 
     // Determine the active API base (handles web portal origin or extension settings)
     const effectiveProxyUrl =
-      typeof window !== 'undefined' && window.location.origin.includes('vercel.app')
+      typeof window !== 'undefined' &&
+      window.location.origin.startsWith('http') &&
+      !window.location.origin.startsWith('chrome-extension://')
         ? `${window.location.origin}/api`
         : serverProxyUrl || 'https://agent.thesharkweb.com/api';
 

@@ -16,7 +16,8 @@ export interface StreamServerProxyParams {
   signal?: AbortSignal;
 }
 
-export const DEFAULT_PROXY_URL = 'https://zonaed-personal-ai-agent-ext.vercel.app/api';
+export const DEFAULT_PROXY_URL = 'https://agent.thesharkweb.com/api';
+export const FALLBACK_PROXY_URL = 'https://zonaed-personal-ai-agent-ext.vercel.app/api';
 
 /**
  * Verify Master PIN against the Vercel backend with automatic fallback.
@@ -28,6 +29,7 @@ export async function verifyServerPin(
   const candidates = [
     proxyBaseUrl,
     DEFAULT_PROXY_URL,
+    FALLBACK_PROXY_URL,
     typeof window !== 'undefined' ? `${window.location.origin}/api` : '',
   ].filter(Boolean);
 
