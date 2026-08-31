@@ -33,6 +33,12 @@ export function PinGate({ onUnlocked }: PinGateProps) {
     setLoading(true);
     setError('');
 
+    // Determine the active API base (handles web portal origin or extension settings)
+    const effectiveProxyUrl =
+      typeof window !== 'undefined' && window.location.origin.includes('vercel.app')
+        ? `${window.location.origin}/api`
+        : serverProxyUrl || 'https://agent.thesharkweb.com/api';
+
     // Strategy 1: If local masterPin is configured and matches
     if (masterPin && cleanPin === masterPin) {
       setLoading(false);
@@ -42,8 +48,8 @@ export function PinGate({ onUnlocked }: PinGateProps) {
     }
 
     // Strategy 2: Authenticate with Vercel Server Proxy
-    if (serverProxyUrl) {
-      const res = await verifyServerPin(serverProxyUrl, cleanPin);
+    if (effectiveProxyUrl) {
+      const res = await verifyServerPin(effectiveProxyUrl, cleanPin);
       if (res.ok && res.token) {
         await update({ pinSessionToken: res.token, isLocked: false });
         setLoading(false);
@@ -70,10 +76,11 @@ export function PinGate({ onUnlocked }: PinGateProps) {
   };
 
   const handleDigitPress = (digit: string) => {
-    if (pin.length < 6) {
+    if (pin.length < 8) {
       const nextPin = pin + digit;
       setPin(nextPin);
-      if (nextPin.length === 4 || nextPin.length === 6) {
+      // Auto-unlock when reaching 6 digits
+      if (nextPin.length === 6) {
         void handleUnlock(nextPin);
       }
     }
@@ -111,12 +118,12 @@ export function PinGate({ onUnlocked }: PinGateProps) {
         <input
           ref={inputRef}
           type="password"
-          maxLength={6}
+          maxLength={8}
           value={pin}
           onChange={(e) => {
             const val = e.target.value.replace(/\D/g, '');
             setPin(val);
-            if (val.length === 4 || val.length === 6) {
+            if (val.length === 6) {
               void handleUnlock(val);
             }
           }}
@@ -127,15 +134,15 @@ export function PinGate({ onUnlocked }: PinGateProps) {
           autoFocus
         />
 
-        {/* PIN Dots Indicator */}
+        {/* PIN Dots Indicator (6 dots for 4-6 digit PINs) */}
         <div
           onClick={() => inputRef.current?.focus()}
-          className="flex cursor-pointer items-center justify-center gap-3 py-2"
+          className="flex cursor-pointer items-center justify-center gap-2.5 py-2"
         >
-          {[0, 1, 2, 3].map((idx) => (
+          {[0, 1, 2, 3, 4, 5].map((idx) => (
             <div
               key={idx}
-              className={`h-3.5 w-3.5 rounded-full transition-all duration-200 ${
+              className={`h-3 w-3 rounded-full transition-all duration-200 ${
                 pin.length > idx
                   ? 'scale-110 bg-gradient-to-tr from-indigo-500 to-cyan-400 shadow-sm shadow-indigo-500/50 ring-2 ring-indigo-400/40'
                   : 'bg-muted-foreground/20 ring-1 ring-border/40'
