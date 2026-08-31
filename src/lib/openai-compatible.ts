@@ -128,6 +128,8 @@ export async function* streamOpenAICompatibleChat(
   }
 
   for (const m of messages) {
+    // If we already added systemPrompt above, skip duplicate system role messages in history
+    if (m.role === 'system') continue;
     formattedMessages.push({
       role: m.role,
       content: m.content,

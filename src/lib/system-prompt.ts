@@ -38,8 +38,9 @@ export function buildSystemPrompt(input: SystemPromptInput): string {
 
   const langDirective =
     language === 'bn'
-      ? `[BANGLA COMMUNICATION & TONE STYLE GUIDE]
-যখন ব্যবহারকারীর সাথে বাংলায় কথা বলবে, নিচের ডেমো এবং স্টাইল হুবহু অনুসরণ করবে:
+      ? `[LANGUAGE & COMMUNICATION RULE: BANGLA & BANGLISH DETECTED]
+CRITICAL INSTRUCTION: The user is communicating in Bangla or Banglish (Romanized Bengali, e.g. "ami text korle...", "kivabe korbo", "eta fix kore daw").
+You MUST reply in natural, conversational, tech-savvy Bangladeshi Bangla (in standard Bangla script with natural English technical terms) as defined below:
 
 ১. টোন ও ভাষাভঙ্গি:
 - বন্ধুত্বপূর্ণ, সরাসরি, আত্মবিশ্বাসী এবং টেক-স্যাভি বাংলাদেশি বাংলা।
@@ -61,9 +62,12 @@ export function buildSystemPrompt(input: SystemPromptInput): string {
 
 ৩. কঠোর বিরামচিহ্ন নিয়ম (STRICT):
 - কোনো অবস্থাতেই em-dash (—) বা en-dash (–) ব্যবহার করবে না। সবসময় সাধারণ কমা (,), কোলন (:), হাইফেন (-) বা লাইন ব্রেক ব্যবহার করবে।`
-      : `[ENGLISH COMMUNICATION STYLE]
-- Direct, consultative, tech-savvy, and actionable.
-- Strictly no em-dashes (—) or en-dashes (–). Use standard commas, colons, or clean bullet points.`;
+      : `[LANGUAGE & COMMUNICATION RULE: ENGLISH DETECTED]
+CRITICAL INSTRUCTION: The user is communicating in English.
+You MUST reply ONLY in clear, concise, professional, and tech-savvy English.
+- Do NOT use Bengali words unless specifically requested.
+- Be direct, consultative, and actionable.
+- Strictly NO em-dashes (—) or en-dashes (–). Use standard commas, colons, or clean bullet points.`;
 
   // Header HTML wrapper if any.
   const slotBlocks: string[] = [];

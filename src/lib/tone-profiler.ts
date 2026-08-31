@@ -14,25 +14,61 @@ export interface ToneProfile {
 }
 
 /**
- * Detect the primary language of user text based on Unicode character analysis.
- * Bengali Unicode range: U+0980 - U+09FF
+ * Common Banglish (Romanized Bengali) keywords.
+ * If user types phonetically in English letters, this detects it as Bangla context.
+ */
+const BANGLISH_KEYWORDS = [
+  'ami', 'amake', 'amader', 'amr', 'amar', 'tumi', 'tomake', 'tomader', 'tomar',
+  'apni', 'apnake', 'apnader', 'apnar', 'keno', 'kivabe', 'kibhabe', 'kemon',
+  'koro', 'korbe', 'korbo', 'korte', 'kore', 'kora', 'korsi', 'koresi', 'korchi',
+  'daw', 'dao', 'dorkar', 'ache', 'achey', 'nai', 'hobe', 'hocche', 'hoise',
+  'eta', 'eita', 'ota', 'oita', 'tokhn', 'jokhn', 'ekhn', 'karon', 'bhalo', 'valo',
+  'chai', 'dekho', 'bolo', 'bolte', 'bolbo', 'bolbe', 'shune', 'shono', 'khub',
+  'beshi', 'kom', 'shob', 'sob', 'jeta', 'seta', 'thakbe', 'ashbe', 'jabe',
+  'parbo', 'parbe', 'thik', 'bhul', 'vul', 'lagbe', 'dite', 'dicchi', 'dilam',
+  'nebo', 'nibo', 'bujhlam', 'bujhte', 'bolchi', 'korar', 'dile', 'gele', 'ashle',
+  'ki', 'kintu', 'ar', 'r', 'na', 'hoye', 'hoy', 'geche', 'gula', 'gulo', 'tai',
+];
+
+const BANGLISH_REGEX = new RegExp(
+  `\\b(${BANGLISH_KEYWORDS.join('|')})\\b`,
+  'gi',
+);
+
+/**
+ * Detect the primary language of user text based on:
+ * 1. Bengali Unicode character analysis (U+0980 - U+09FF)
+ * 2. Banglish (Romanized Bengali phonetic words in English script)
  */
 export function detectLanguage(text: string): DetectedLanguage {
-  if (!text.trim()) return 'en';
+  const trimmed = text.trim();
+  if (!trimmed) return 'en';
 
-  const chars = [...text.replace(/\s+/g, '')];
+  const chars = [...trimmed.replace(/\s+/g, '')];
   if (chars.length === 0) return 'en';
 
+  // 1. Bengali Unicode script check
   let banglaCount = 0;
   for (const ch of chars) {
     const code = ch.codePointAt(0) ?? 0;
     if (code >= 0x0980 && code <= 0x09ff) banglaCount++;
   }
 
-  const ratio = banglaCount / chars.length;
-  if (ratio > 0.4) return 'bn';
-  if (ratio < 0.1) return 'en';
-  return 'mixed';
+  const scriptRatio = banglaCount / chars.length;
+  if (scriptRatio > 0.15) return 'bn';
+
+  // 2. Banglish keyword matching
+  const banglishMatches = trimmed.match(BANGLISH_REGEX);
+  if (banglishMatches && banglishMatches.length >= 2) {
+    return 'bn';
+  }
+
+  // 3. Mixed / Single word check
+  if (banglishMatches && banglishMatches.length === 1 && trimmed.split(/\s+/).length <= 4) {
+    return 'bn';
+  }
+
+  return 'en';
 }
 
 /**

@@ -234,12 +234,17 @@ export const useChatStore = create<ChatState>()((set, get) => {
       }
     });
 
-    // Feature 1: Adaptive Tone Profiler - auto-switch language based on user text
+    // Feature 1: Adaptive Tone Profiler - auto-switch language based on user text (Bangla/Banglish vs English)
     const toneProfile = profileTone(text);
-    if (toneProfile.language === 'bn' && settings.language !== 'bn') {
-      void useSettingsStore.getState().update({ language: 'bn' });
-    } else if (toneProfile.language === 'en' && settings.language !== 'en') {
-      void useSettingsStore.getState().update({ language: 'en' });
+    const activeLanguage =
+      toneProfile.language === 'bn'
+        ? 'bn'
+        : toneProfile.language === 'en'
+        ? 'en'
+        : settings.language;
+
+    if (activeLanguage !== settings.language) {
+      void useSettingsStore.getState().update({ language: activeLanguage });
     }
 
     // Pre-flight memory & skills auto-detection (includes output styles, few-shot, knowledge)
@@ -304,7 +309,7 @@ export const useChatStore = create<ChatState>()((set, get) => {
         const baseSystemPrompt = buildSystemPrompt({
           contextSlots: slots,
           maxContextChars: effectiveContextChars,
-          language: settings.language,
+          language: activeLanguage,
         });
 
         const systemPrompt = [preamble, draftInstruction, baseSystemPrompt].filter(Boolean).join('\n\n');
