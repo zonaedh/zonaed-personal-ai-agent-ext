@@ -15,6 +15,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useToolsStore, type ToolId } from '@/store/tools-store';
+import { AnimatedLogo } from '@/components/ui/animated-logo';
 import { cn } from '@/lib/cn';
 
 interface CapabilityCard {
@@ -91,13 +92,14 @@ export function EmptyState({ onSuggestion }: { onSuggestion: (text: string) => v
   };
 
   return (
-    <div className="relative flex flex-col items-center justify-center gap-7 px-4 py-8 md:py-12 text-center select-none">
-      {/* Centered Large Greeting */}
-      <div className="flex flex-col items-center gap-2 max-w-xl mx-auto">
-        <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground font-sans">
+    <div className="relative flex flex-col items-center justify-center gap-5 sm:gap-7 px-3 sm:px-4 py-6 sm:py-10 md:py-12 text-center select-none">
+      {/* Animated Glowing Logo & Greeting */}
+      <div className="flex flex-col items-center gap-3 max-w-xl mx-auto">
+        <AnimatedLogo size="xl" className="mb-1" />
+        <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold tracking-tight text-foreground font-sans">
           Good to see you, Zonaed.
         </h1>
-        <p className="text-xs md:text-sm text-muted-foreground font-normal leading-relaxed max-w-md">
+        <p className="text-xs sm:text-sm text-muted-foreground font-normal leading-relaxed max-w-md px-2">
           Zonaed AI your personal and expert AI assistant for pretty much any tasks you can imagine.
         </p>
       </div>

@@ -6,7 +6,6 @@ import {
   Plus,
   Search,
   Settings,
-  Sparkles,
   Sun,
   PanelLeft,
 } from 'lucide-react';
@@ -14,6 +13,7 @@ import { applyTheme, type ThemeMode } from '@/lib/theme';
 import { useChatStore } from '@/store/chat-store';
 import { useSettingsStore } from '@/store/settings-store';
 import { ModelPicker } from '@/components/chat/model-picker';
+import { AnimatedLogo } from '@/components/ui/animated-logo';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/cn';
 
@@ -45,46 +45,44 @@ export function ChatHeader({ sidebarCollapsed, onToggleSidebar }: ChatHeaderProp
   };
 
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between border-b border-border/60 bg-background/80 backdrop-blur-md px-4 md:px-6 select-none">
-      {/* Left section: Voxle-style Brand Emblem + Vertical Divider + Model Selector Pill */}
-      <div className="flex items-center gap-3">
+    <header className="flex h-14 shrink-0 items-center justify-between border-b border-border/60 bg-background/80 backdrop-blur-md px-3 sm:px-4 md:px-6 select-none safe-top">
+      {/* Left section: Animated Glowing Logo + Brand + Model Switcher Pill */}
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         {onToggleSidebar && (
           <button
             onClick={onToggleSidebar}
-            className="flex h-8 w-8 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:scale-95"
             title="Toggle Sidebar"
+            aria-label="Toggle Sidebar"
           >
             <PanelLeft className="h-4 w-4" />
           </button>
         )}
 
-        <div className="flex items-center gap-2">
-          {/* Voxle-style clean star icon */}
-          <div className="flex h-7 w-7 items-center justify-center rounded-full border border-border/80 bg-card text-primary shadow-2xs">
-            <Sparkles className="h-3.5 w-3.5 fill-primary/20 text-primary" />
-          </div>
-          <span className="text-sm font-extrabold tracking-tight text-foreground font-sans">
+        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+          <AnimatedLogo size="sm" />
+          <span className="text-xs sm:text-sm font-extrabold tracking-tight text-foreground font-sans truncate">
             Zonaed
           </span>
           <span className="h-4 w-px bg-border/80 hidden sm:inline-block mx-0.5" />
         </div>
 
         {/* Model Switcher Pill */}
-        <div className="hidden sm:block">
+        <div className="hidden xs:block sm:block min-w-0">
           <ModelPicker />
         </div>
       </div>
 
       {/* Right section: Vibrant Blue + New chat pill, Search chat, Library, Theme & Settings */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 sm:gap-2 shrink-0">
         {/* Voxle-style bright blue + New Chat pill */}
         <button
           onClick={() => void newSession()}
-          className="flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-xs font-bold text-primary-foreground shadow-2xs transition-all hover:opacity-95 hover:shadow-sm active:scale-95"
+          className="flex items-center gap-1 sm:gap-1.5 rounded-full bg-primary px-2.5 sm:px-3.5 py-1.5 text-xs font-bold text-primary-foreground shadow-2xs transition-all hover:opacity-95 active:scale-95"
           title="New Chat (Ctrl+K)"
         >
           <Plus className="h-3.5 w-3.5 stroke-[2.5]" />
-          <span>New chat</span>
+          <span className="hidden xs:inline">New chat</span>
         </button>
 
         {/* Search chat text button */}

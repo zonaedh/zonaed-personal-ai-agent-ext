@@ -207,12 +207,12 @@ export function Composer() {
   const canSend = hasValidEngine && !isGenerating;
 
   return (
-    <div className="border-t border-border/40 bg-background/80 backdrop-blur-md px-4 pb-4 pt-2 select-none">
-      <div className="mx-auto flex max-w-4xl flex-col gap-3">
+    <div className="border-t border-border/40 bg-background/80 backdrop-blur-md px-3 sm:px-4 pb-3 sm:pb-4 pt-2 select-none safe-pb">
+      <div className="mx-auto flex max-w-4xl flex-col gap-2.5 sm:gap-3">
         <ContextChips slots={contextSlots} onRemove={(i) => void removeContextSlot(i)} />
 
         {/* Voxle-style Floating Card Container */}
-        <div className="relative rounded-2xl border border-border/80 bg-card p-3 shadow-2xs transition-all focus-within:border-primary/60 focus-within:shadow-md focus-within:shadow-black/5">
+        <div className="relative rounded-2xl border border-border/80 bg-card p-2.5 sm:p-3 shadow-2xs transition-all focus-within:border-primary/60 focus-within:shadow-md focus-within:shadow-black/5">
           <Textarea
             ref={textareaRef}
             value={draft}
@@ -228,19 +228,19 @@ export function Composer() {
             }}
             placeholder="How can I help you today?"
             rows={1}
-            className="max-h-44 border-0 bg-transparent px-1 py-1 shadow-none focus-visible:ring-0 text-xs sm:text-sm placeholder:text-muted-foreground/70 font-sans"
+            className="max-h-44 border-0 bg-transparent px-1 py-1 shadow-none focus-visible:ring-0 text-sm placeholder:text-muted-foreground/70 font-sans resize-none"
             disabled={isGenerating}
             aria-label="Message"
           />
 
           {/* Bottom Action Controls Bar */}
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center justify-between pt-1.5 sm:pt-2">
             {/* Left Action Buttons (+ Attach, Tools, Reset) */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5 sm:gap-1">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded-xl text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                className="h-8 w-8 rounded-xl text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:scale-95"
                 onClick={() => void attachPage()}
                 disabled={readingPage || isGenerating}
                 title="Attach active page context"
@@ -253,7 +253,7 @@ export function Composer() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded-xl text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                className="h-8 w-8 rounded-xl text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:scale-95"
                 onClick={() => void newSession()}
                 disabled={isGenerating}
                 title="Reset / New Chat"
@@ -263,12 +263,12 @@ export function Composer() {
             </div>
 
             {/* Right Action Buttons (Voice dictation + Voxle-style Blue Talk/Send Pill) */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <Button
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  'h-8 w-8 rounded-xl text-muted-foreground transition-all hover:bg-accent hover:text-foreground',
+                  'h-8 w-8 rounded-xl text-muted-foreground transition-all hover:bg-accent hover:text-foreground active:scale-95',
                   isListening && 'bg-red-500/15 text-red-500 animate-pulse ring-1 ring-red-500/30',
                 )}
                 onClick={toggleVoice}
@@ -281,7 +281,7 @@ export function Composer() {
               {isGenerating ? (
                 <button
                   onClick={stop}
-                  className="flex items-center gap-1.5 rounded-xl border border-destructive/40 bg-destructive/10 px-3.5 py-1.5 text-xs font-bold text-destructive transition-colors hover:bg-destructive/20 active:scale-95"
+                  className="flex items-center gap-1.5 rounded-xl border border-destructive/40 bg-destructive/10 px-3 sm:px-3.5 py-1.5 text-xs font-bold text-destructive transition-colors hover:bg-destructive/20 active:scale-95"
                 >
                   <Square className="h-3 w-3 fill-current" />
                   <span>Stop</span>
@@ -290,7 +290,7 @@ export function Composer() {
                 <button
                   onClick={() => void submit()}
                   disabled={!draft.trim() || !canSend}
-                  className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-1.5 text-xs font-bold text-primary-foreground shadow-2xs transition-all hover:opacity-95 hover:shadow-xs active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
+                  className="flex items-center gap-1.5 rounded-xl bg-primary px-3.5 sm:px-4 py-1.5 text-xs font-bold text-primary-foreground shadow-2xs transition-all hover:opacity-95 active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
                   title="Send message (Enter)"
                 >
                   <Send className="h-3.5 w-3.5" />
@@ -303,12 +303,12 @@ export function Composer() {
 
         {/* Voxle-style Prompt Suggestion Pills (Shown when conversation is fresh) */}
         {messages.length === 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2 pt-0.5">
             {SUGGESTION_PILLS.map((p) => (
               <button
                 key={p.id}
                 onClick={() => void submit(p.prompt)}
-                className="flex items-center justify-between rounded-xl border border-border/70 bg-card px-3.5 py-2 text-left text-xs font-medium text-foreground/80 shadow-2xs transition-all hover:border-primary/40 hover:bg-accent hover:text-foreground active:scale-[0.99]"
+                className="flex items-center justify-between rounded-xl border border-border/70 bg-card px-3 sm:px-3.5 py-2 text-left text-xs font-medium text-foreground/80 shadow-2xs transition-all hover:border-primary/40 hover:bg-accent hover:text-foreground active:scale-[0.99]"
               >
                 <span className="truncate">{p.label}</span>
               </button>

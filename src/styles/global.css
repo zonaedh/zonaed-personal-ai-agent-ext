@@ -62,6 +62,9 @@
   body,
   #root {
     height: 100%;
+    min-height: 100dvh;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
@@ -69,14 +72,28 @@
     font-family: theme('fontFamily.sans');
     font-size: 14px;
     overflow: hidden;
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
 @layer utilities {
-  /* Thin scrollbars for the chat pane without pulling in a scrollbar lib. */
+  /* iOS Safe Area Utilities */
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .safe-pb {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
+  }
+
+  /* Thin scrollbars for the chat pane with touch momentum on iOS. */
   .scroll-area {
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--border)) transparent;
+    -webkit-overflow-scrolling: touch;
   }
   .scroll-area::-webkit-scrollbar {
     width: 6px;

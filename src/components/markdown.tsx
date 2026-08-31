@@ -80,7 +80,7 @@ export interface MarkdownProps {
  */
 export const Markdown = memo(function Markdown({ content, streaming }: MarkdownProps) {
   return (
-    <div className={cn('markdown-body text-sm leading-relaxed', streaming && 'streaming-caret')}>
+    <div className={cn('markdown-body text-xs sm:text-sm leading-relaxed break-words overflow-hidden', streaming && 'streaming-caret')}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
@@ -97,16 +97,16 @@ export const Markdown = memo(function Markdown({ content, streaming }: MarkdownP
             </a>
           ),
           table: ({ children }) => (
-            <div className="scroll-area my-2 max-w-full overflow-auto rounded border">
-              <table className="w-full border-collapse text-sm">{children}</table>
+            <div className="scroll-area my-2 w-full max-w-full overflow-x-auto rounded-xl border border-border/70">
+              <table className="min-w-full border-collapse text-xs sm:text-sm">{children}</table>
             </div>
           ),
           th: ({ children }) => (
-            <th className="border-b border-border bg-muted/60 px-2 py-1 text-left font-semibold">
+            <th className="border-b border-border bg-muted/60 px-2.5 py-1.5 text-left font-semibold text-xs">
               {children}
             </th>
           ),
-          td: ({ children }) => <td className="border-b border-border px-2 py-1">{children}</td>,
+          td: ({ children }) => <td className="border-b border-border px-2.5 py-1.5 text-xs">{children}</td>,
         }}
       >
         {content}

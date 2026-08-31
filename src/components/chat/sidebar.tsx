@@ -6,7 +6,6 @@ import {
   Trash2,
   Settings,
   Shield,
-  Sparkles,
   PanelLeftClose,
   PanelLeft,
   TrendingUp,
@@ -24,6 +23,7 @@ import type { ChatSessionMeta } from '@/shared/types';
 import { useChatStore } from '@/store/chat-store';
 import { useSettingsStore } from '@/store/settings-store';
 import { useToolsStore, type ToolId } from '@/store/tools-store';
+import { AnimatedLogo } from '@/components/ui/animated-logo';
 import { cn } from '@/lib/cn';
 
 interface SidebarProps {
@@ -57,101 +57,89 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
 
   const list = results ?? sessions;
 
-  if (collapsed) {
-    return (
-      <aside className="hidden md:flex h-full w-14 flex-col items-center justify-between border-r border-border/60 bg-card/70 py-3.5 backdrop-blur-xl transition-all duration-300">
-        <div className="flex flex-col items-center gap-3">
-          <button
-            onClick={onToggleCollapse}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            title="Expand Sidebar"
-          >
-            <PanelLeft className="h-4 w-4" />
-          </button>
+  const handleSelectSession = (id: number) => {
+    void openSession(id);
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      onToggleCollapse();
+    }
+  };
 
-          <button
-            onClick={() => void newSession()}
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-white shadow-2xs transition-transform hover:scale-105"
-            title="New Chat"
-          >
-            <Plus className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div className="flex flex-col items-center gap-2">
-          <button
-            onClick={() => openSettings()}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            title="Settings"
-          >
-            <Settings className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => lock()}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-            title="Lock Workspace"
-          >
-            <Lock className="h-4 w-4" />
-          </button>
-        </div>
-      </aside>
-    );
-  }
+  const handleNewChat = () => {
+    void newSession();
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      onToggleCollapse();
+    }
+  };
 
   return (
-    <aside className="flex h-full w-64 md:w-72 shrink-0 flex-col justify-between border-r border-border/60 bg-card/80 backdrop-blur-2xl transition-all duration-300">
-      {/* Top Header & New Chat */}
-      <div className="flex flex-col gap-3 p-3.5 border-b border-border/40">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full border border-border/80 bg-card text-primary shadow-2xs">
-              <Sparkles className="h-3.5 w-3.5 fill-primary/20 text-primary" />
+    <>
+      {/* Mobile Touch Backdrop Overlay */}
+      {!collapsed && (
+        <div
+          onClick={onToggleCollapse}
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs md:hidden transition-opacity"
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Slide-out Sidebar Drawer */}
+      <aside
+        className={cn(
+          'fixed inset-y-0 left-0 z-50 flex h-full w-72 flex-col justify-between border-r border-border/60 bg-card/95 backdrop-blur-2xl shadow-2xl transition-transform duration-300 md:static md:z-auto md:w-64 md:lg:w-72 md:shadow-none safe-top safe-bottom',
+          collapsed ? '-translate-x-full md:translate-x-0 md:hidden' : 'translate-x-0',
+        )}
+      >
+        {/* Top Header & New Chat */}
+        <div className="flex flex-col gap-3 p-3.5 border-b border-border/40">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <AnimatedLogo size="sm" />
+              <div className="flex flex-col">
+                <span className="text-xs font-bold tracking-tight text-foreground font-sans">
+                  Zonaed AI
+                </span>
+                <span className="text-[10px] font-medium text-muted-foreground -mt-0.5">
+                  Personal AI Agent
+                </span>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <span className="text-xs font-bold tracking-tight text-foreground font-sans">
-                Zonaed AI
-              </span>
-              <span className="text-[10px] font-medium text-muted-foreground -mt-0.5">
-                Personal AI Agent
-              </span>
-            </div>
+
+            <button
+              onClick={onToggleCollapse}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:scale-95"
+              title="Collapse Sidebar"
+              aria-label="Collapse Sidebar"
+            >
+              <PanelLeftClose className="h-4 w-4" />
+            </button>
           </div>
 
+          {/* New Chat Button */}
           <button
-            onClick={onToggleCollapse}
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            title="Collapse Sidebar"
+            onClick={handleNewChat}
+            className="flex w-full items-center justify-between rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-2xs transition-all hover:opacity-95 active:scale-[0.99]"
           >
-            <PanelLeftClose className="h-4 w-4" />
+            <div className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              <span>New Chat</span>
+            </div>
+            <span className="rounded-md bg-white/20 px-1.5 py-0.5 text-[9px] font-semibold text-white">
+              Ctrl+K
+            </span>
           </button>
-        </div>
 
-        {/* New Chat Button */}
-        <button
-          onClick={() => void newSession()}
-          className="flex w-full items-center justify-between rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-2xs transition-all hover:opacity-95 active:scale-[0.99]"
-        >
-          <div className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            <span>New Chat</span>
+          {/* Search Chats Input */}
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search conversations…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="w-full rounded-xl border border-border/70 bg-background/60 py-1.5 pl-8 pr-2.5 text-xs text-foreground placeholder:text-muted-foreground/70 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30"
+            />
           </div>
-          <span className="rounded-md bg-white/20 px-1.5 py-0.5 text-[9px] font-semibold text-white">
-            Ctrl+K
-          </span>
-        </button>
-
-        {/* Search Chats Input */}
-        <div className="relative">
-          <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search conversations…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="w-full rounded-xl border border-border/70 bg-background/60 py-1.5 pl-8 pr-2.5 text-xs text-foreground placeholder:text-muted-foreground/70 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30"
-          />
         </div>
-      </div>
 
       {/* Middle Scrollable Section: Tools & Chat History */}
       <div className="flex-1 overflow-y-auto px-2.5 py-3 space-y-4" style={{ scrollbarWidth: 'thin' }}>
@@ -208,7 +196,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                         ? 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-semibold ring-1 ring-indigo-500/30'
                         : 'text-foreground/80 hover:bg-accent hover:text-foreground',
                     )}
-                    onClick={() => void openSession(s.id)}
+                    onClick={() => handleSelectSession(s.id)}
                   >
                     <div className="flex items-center gap-2 min-w-0 pr-6">
                       <MessageSquare className="h-3.5 w-3.5 shrink-0 opacity-70" />
@@ -272,5 +260,6 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
         </div>
       </div>
     </aside>
+  </>
   );
 }
