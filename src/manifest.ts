@@ -46,7 +46,15 @@ export default {
     'http://localhost:11434/*',
     'http://127.0.0.1:11434/*',
     'https://generativelanguage.googleapis.com/*',
+    'https://agent.thesharkweb.com/*',
   ],
+  externally_connectable: {
+    matches: [
+      'https://agent.thesharkweb.com/*',
+      'http://localhost:3000/*',
+      'http://localhost:5173/*',
+    ],
+  },
   background: {
     service_worker: 'src/background/index.ts',
   },

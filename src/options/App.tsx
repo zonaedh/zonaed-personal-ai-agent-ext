@@ -284,12 +284,16 @@ function GeneralTab() {
   const [draftGroqKey, setDraftGroqKey] = useState(settings.groqApiKey || '');
   const [draftOpenRouterKey, setDraftOpenRouterKey] = useState(settings.openRouterApiKey || '');
   const [draftDeepSeekKey, setDraftDeepSeekKey] = useState(settings.deepSeekApiKey || '');
+  const [draftPin, setDraftPin] = useState(settings.masterPin || '');
+  const [draftProxyUrl, setDraftProxyUrl] = useState(settings.serverProxyUrl || 'https://agent.thesharkweb.com/api');
+  const [pinLockEnabled, setPinLockEnabled] = useState(settings.pinLockEnabled ?? true);
 
   const [testing, setTesting] = useState(false);
   const [testingGemini, setTestingGemini] = useState(false);
   const [testingGroq, setTestingGroq] = useState(false);
   const [testingOpenRouter, setTestingOpenRouter] = useState(false);
   const [testingDeepSeek, setTestingDeepSeek] = useState(false);
+  const [testingProxy, setTestingProxy] = useState(false);
   const [testingMic, setTestingMic] = useState(false);
 
   useEffect(() => {
@@ -302,12 +306,18 @@ function GeneralTab() {
     setDraftGroqKey(settings.groqApiKey || '');
     setDraftOpenRouterKey(settings.openRouterApiKey || '');
     setDraftDeepSeekKey(settings.deepSeekApiKey || '');
+    setDraftPin(settings.masterPin || '');
+    setDraftProxyUrl(settings.serverProxyUrl || 'https://agent.thesharkweb.com/api');
+    setPinLockEnabled(settings.pinLockEnabled ?? true);
   }, [
     settings.ollamaBaseUrl,
     settings.geminiApiKey,
     settings.groqApiKey,
     settings.openRouterApiKey,
     settings.deepSeekApiKey,
+    settings.masterPin,
+    settings.serverProxyUrl,
+    settings.pinLockEnabled,
   ]);
 
   const saveUrl = async () => {
@@ -420,8 +430,98 @@ function GeneralTab() {
     }
   };
 
+  const saveSecuritySettings = async () => {
+    setTestingProxy(true);
+    const pin = draftPin.trim();
+    const proxyUrl = draftProxyUrl.trim() || 'https://agent.thesharkweb.com/api';
+    await update({
+      masterPin: pin,
+      serverProxyUrl: proxyUrl,
+      pinLockEnabled,
+    });
+
+    if (pin) {
+      const { verifyServerPin } = await import('@/lib/server-proxy');
+      const res = await verifyServerPin(proxyUrl, pin);
+      useToastStore.getState().push(
+        res.ok ? 'success' : 'info',
+        res.ok ? 'Master PIN & Vercel Proxy Verified! 🛡️' : 'PIN Saved Locally 🔒',
+        res.ok ? 'Connected to agent.thesharkweb.com server proxy.' : 'Master PIN is active on this browser.',
+      );
+    } else {
+      useToastStore.getState().push('info', 'Security Settings Saved', 'PIN lock preferences updated.');
+    }
+    setTestingProxy(false);
+  };
+
   return (
     <div className="flex flex-col gap-5">
+      {/* Security, Master PIN & Vercel Proxy Card */}
+      <section className="flex flex-col gap-4 rounded-2xl border border-indigo-500/30 bg-card/90 backdrop-blur-md p-5 shadow-sm transition-all hover:shadow-md">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-500 font-extrabold text-sm">
+              <Shield className="h-4 w-4" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-foreground font-sans">Security Lock &amp; Vercel Server Proxy</h2>
+              <span className="text-[11px] text-muted-foreground font-sans">Protects API keys and locks extension workspace with Master PIN</span>
+            </div>
+          </div>
+          <span className="rounded-md bg-indigo-500/15 px-2 py-0.5 text-[10px] font-bold text-indigo-500">
+            Zero-Trust Protected
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="text-[11px] font-semibold text-foreground/80 mb-1 block">
+              Master PIN Code (4-6 digits)
+            </label>
+            <Input
+              type="password"
+              placeholder="e.g. 1234"
+              maxLength={6}
+              value={draftPin}
+              onChange={(e) => setDraftPin(e.target.value.replace(/\D/g, ''))}
+              className="text-xs"
+            />
+          </div>
+
+          <div>
+            <label className="text-[11px] font-semibold text-foreground/80 mb-1 block">
+              Vercel Server Proxy URL
+            </label>
+            <Input
+              type="text"
+              placeholder="https://agent.thesharkweb.com/api"
+              value={draftProxyUrl}
+              onChange={(e) => setDraftProxyUrl(e.target.value)}
+              className="text-xs"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-1">
+          <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
+            <input
+              type="checkbox"
+              checked={pinLockEnabled}
+              onChange={(e) => setPinLockEnabled(e.target.checked)}
+              className="rounded border-border"
+            />
+            <span>Enable PIN Lock on Startup</span>
+          </label>
+          <Button
+            size="sm"
+            onClick={() => void saveSecuritySettings()}
+            loading={testingProxy}
+            className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4"
+          >
+            Save Security Settings
+          </Button>
+        </div>
+      </section>
       {/* Groq AI (Free DeepSeek R1 & Qwen 2.5) */}
       <section className="flex flex-col gap-3 rounded-2xl border bg-card/90 backdrop-blur-md p-5 shadow-sm transition-all hover:shadow-md border-cyan-500/20">
         <div className="flex items-center justify-between">

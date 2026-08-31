@@ -12,6 +12,11 @@ export interface Settings {
   groqApiKey?: string;
   openRouterApiKey?: string;
   deepSeekApiKey?: string;
+  serverProxyUrl: string;
+  pinSessionToken?: string;
+  masterPin?: string;
+  pinLockEnabled: boolean;
+  isLocked: boolean;
   theme: ThemeMode;
   /** Total context budget in characters fed to the model per turn. */
   maxContextChars: number;
@@ -25,10 +30,15 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = {
   ollamaBaseUrl: DEFAULT_OLLAMA_BASE,
-  geminiApiKey: 'AQ.Ab8RN6JeRTzQTrJXdvOHT1KfKdW15G1EhC1ybSoiQ9JV7Ygi9Q',
-  groqApiKey: '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',
-  openRouterApiKey: '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',
+  geminiApiKey: '',
+  groqApiKey: '',
+  openRouterApiKey: '',
   deepSeekApiKey: '',
+  serverProxyUrl: 'https://agent.thesharkweb.com/api',
+  pinSessionToken: '',
+  masterPin: '',
+  pinLockEnabled: true,
+  isLocked: true,
   theme: 'system',
   maxContextChars: 40000,
   lastModel: 'auto',
@@ -41,11 +51,21 @@ interface SettingsState extends Settings {
   ready: boolean;
   load(): Promise<void>;
   update(patch: Partial<Settings>): Promise<void>;
+  unlock(): void;
+  lock(): void;
 }
 
 export const useSettingsStore = create<SettingsState>()((set, get) => ({
   ...DEFAULT_SETTINGS,
   ready: true,
+
+  unlock() {
+    set({ isLocked: false });
+  },
+
+  lock() {
+    set({ isLocked: true });
+  },
 
   async load() {
     let stored: Partial<Settings> | undefined;
@@ -57,9 +77,8 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
     const merged = {
       ...DEFAULT_SETTINGS,
       ...(stored ?? {}),
-      groqApiKey: stored?.groqApiKey || DEFAULT_SETTINGS.groqApiKey,
-      geminiApiKey: stored?.geminiApiKey || DEFAULT_SETTINGS.geminiApiKey,
-      openRouterApiKey: stored?.openRouterApiKey || DEFAULT_SETTINGS.openRouterApiKey,
+      // Automatically lock on new fresh startup if pinLockEnabled is true
+      isLocked: stored?.pinLockEnabled ?? DEFAULT_SETTINGS.pinLockEnabled,
     };
     set({ ...merged, ready: true });
     applyTheme(merged.theme);

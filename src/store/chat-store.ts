@@ -20,6 +20,7 @@ import { buildPersonalizedPreamble, detectAndLearnMemories } from '@/lib/memory-
 import { profileTone } from '@/lib/tone-profiler';
 import { shouldUseDraftMode, buildDraftInstruction, isDraftApproval, buildFullDraftInstruction } from '@/lib/chain-of-draft';
 import { buildTaskHint, buildTaskUserPrompt, taskNeedsContent } from '@/lib/tasks';
+import { streamServerProxyChat } from '@/lib/server-proxy';
 import { exportToGoogleDocs } from '@/lib/marketing-plan';
 import { exportToGoogleSheets } from '@/lib/sheets-export';
 import { parseThinkingContent } from '@/components/chat/thinking-box';
@@ -358,13 +359,26 @@ export const useChatStore = create<ChatState>()((set, get) => {
           let streamGenerator: AsyncGenerator<import('@/lib/ollama').ChatStreamEvent, void, void>;
 
           if (isCandidateGemini) {
-            streamGenerator = streamGeminiChat({
-              apiKey: settings.geminiApiKey,
-              model: candidate.model,
-              messages: requestMessages,
-              systemPrompt,
-              signal: controller.signal,
-            });
+            // If direct client API key is provided, use direct client streaming; otherwise use secure Vercel proxy
+            if (settings.geminiApiKey && settings.geminiApiKey.trim()) {
+              streamGenerator = streamGeminiChat({
+                apiKey: settings.geminiApiKey,
+                model: candidate.model,
+                messages: requestMessages,
+                systemPrompt,
+                signal: controller.signal,
+              });
+            } else {
+              streamGenerator = streamServerProxyChat({
+                proxyUrl: settings.serverProxyUrl,
+                sessionToken: settings.pinSessionToken,
+                pin: settings.masterPin,
+                model: candidate.model,
+                messages: requestMessages,
+                systemPrompt,
+                signal: controller.signal,
+              });
+            }
           } else if (isCandidateCloud) {
             const { provider, rawModel } = parseCloudModel(candidate.model);
             const apiKey =
@@ -373,14 +387,27 @@ export const useChatStore = create<ChatState>()((set, get) => {
                 : provider === 'deepseek'
                 ? settings.deepSeekApiKey
                 : settings.openRouterApiKey) || '';
-            streamGenerator = streamOpenAICompatibleChat({
-              apiKey,
-              provider,
-              rawModel,
-              messages: requestMessages,
-              systemPrompt,
-              signal: controller.signal,
-            });
+
+            if (apiKey && apiKey.trim()) {
+              streamGenerator = streamOpenAICompatibleChat({
+                apiKey,
+                provider,
+                rawModel,
+                messages: requestMessages,
+                systemPrompt,
+                signal: controller.signal,
+              });
+            } else {
+              streamGenerator = streamServerProxyChat({
+                proxyUrl: settings.serverProxyUrl,
+                sessionToken: settings.pinSessionToken,
+                pin: settings.masterPin,
+                model: candidate.model,
+                messages: requestMessages,
+                systemPrompt,
+                signal: controller.signal,
+              });
+            }
           } else {
             streamGenerator = streamChat({
               baseUrl: settings.ollamaBaseUrl,

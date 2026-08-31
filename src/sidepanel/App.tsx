@@ -17,6 +17,8 @@ import { ToolDialogs } from '@/components/tools';
 import { Toaster } from '@/components/ui/toaster';
 import { Skeleton } from '@/components/ui/skeleton';
 
+import { PinGate } from '@/components/auth/pin-gate';
+
 /**
  * The primary UI surface (chrome.sidePanel).
  * Boot sequence: settings -> Ollama status/models -> chat (history or pending
@@ -24,6 +26,8 @@ import { Skeleton } from '@/components/ui/skeleton';
  */
 export function SidePanelApp() {
   const settingsReady = useSettingsStore((s) => s.ready);
+  const isLocked = useSettingsStore((s) => s.isLocked);
+  const pinLockEnabled = useSettingsStore((s) => s.pinLockEnabled);
   const ollamaStatus = useOllamaStore((s) => s.status);
   const messages = useChatStore((s) => s.messages);
   const isGenerating = useChatStore((s) => s.isGenerating);
@@ -68,6 +72,10 @@ export function SidePanelApp() {
         <Skeleton className="h-8 w-40" />
       </div>
     );
+  }
+
+  if (isLocked && pinLockEnabled) {
+    return <PinGate onUnlocked={() => useSettingsStore.getState().unlock()} />;
   }
 
   const selectedModel = useOllamaStore((s) => s.selectedModel);
