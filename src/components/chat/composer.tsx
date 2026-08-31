@@ -1,5 +1,13 @@
 import { useCallback, useRef, useState } from 'react';
-import { CornerDownLeft, Globe, Loader2, Mic, MicOff, Square } from 'lucide-react';
+import {
+  Loader2,
+  Mic,
+  MicOff,
+  Plus,
+  RotateCw,
+  Send,
+  Square,
+} from 'lucide-react';
 import { readActiveTabPage } from '@/lib/chrome';
 import { isGeminiModel } from '@/lib/gemini';
 import { isCloudModel, parseCloudModel } from '@/lib/openai-compatible';
@@ -10,13 +18,19 @@ import { useToastStore } from '@/store/toast-store';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/input';
 import { ContextChips } from '@/components/chat/context-chips';
-import { ModelPicker } from '@/components/chat/model-picker';
 import { ToolsMenu } from '@/components/tools/tools-menu';
 import { cn } from '@/lib/cn';
 
+const SUGGESTION_PILLS = [
+  { id: '1', label: '📝 Help me write a high-converting cold pitch', prompt: 'Help me write a high-converting cold outreach email and LinkedIn pitch with zero fluff.' },
+  { id: '2', label: '📊 Extract data to Google Sheets', prompt: 'Help me extract structured data and leads from the current webpage into Google Sheets.' },
+  { id: '3', label: '📈 360° Digital marketing plan', prompt: 'Create a full 360° digital marketing plan with SMM, SEO, and paid ad strategies.' },
+  { id: '4', label: '🎬 YouTube to viral LinkedIn post', prompt: 'Turn this YouTube video into a viral hook-driven LinkedIn post and carousel outline.' },
+];
+
 /**
- * Chat composer: streaming-first composer with page/selection context attach,
- * dynamic model row, voice dictation, and stop/cancel for in-flight generations.
+ * Voxle-inspired Chat Composer: Floating rounded card with bottom utility icons,
+ * vibrant blue Talk/Send pill button, and prompt suggestion chips below.
  */
 export function Composer() {
   const messages = useChatStore((s) => s.messages);
@@ -24,6 +38,7 @@ export function Composer() {
   const isGenerating = useChatStore((s) => s.isGenerating);
   const sendText = useChatStore((s) => s.sendText);
   const stop = useChatStore((s) => s.stop);
+  const newSession = useChatStore((s) => s.newSession);
   const addContextSlot = useChatStore((s) => s.addContextSlot);
   const removeContextSlot = useChatStore((s) => s.removeContextSlot);
   const ollamaStatus = useOllamaStore((s) => s.status);
@@ -32,6 +47,8 @@ export function Composer() {
   const groqApiKey = useSettingsStore((s) => s.groqApiKey);
   const openRouterApiKey = useSettingsStore((s) => s.openRouterApiKey);
   const deepSeekApiKey = useSettingsStore((s) => s.deepSeekApiKey);
+  const serverProxyUrl = useSettingsStore((s) => s.serverProxyUrl);
+  const pinSessionToken = useSettingsStore((s) => s.pinSessionToken);
   const language = useSettingsStore((s) => s.language);
 
   const [draft, setDraft] = useState('');
@@ -42,11 +59,11 @@ export function Composer() {
 
   const resize = useCallback((el: HTMLTextAreaElement) => {
     el.style.height = 'auto';
-    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+    el.style.height = `${Math.min(el.scrollHeight, 180)}px`;
   }, []);
 
-  const submit = async () => {
-    const text = draft.trim();
+  const submit = async (overrideText?: string) => {
+    const text = (overrideText ?? draft).trim();
     if (!text || isGenerating) return;
     setDraft('');
     if (textareaRef.current) textareaRef.current.style.height = 'auto';
@@ -65,7 +82,7 @@ export function Composer() {
             'error',
             page.needsActivation ? 'Grant access first' : 'Couldn’t read this page',
             page.needsActivation
-              ? 'Click the extension icon (or press Ctrl+Shift+Z), then try again — that grants this tab access.'
+              ? 'Click the extension icon (or press Ctrl+Shift+Z), then try again.'
               : page.error ?? 'Unknown error.',
           );
         return;
@@ -79,7 +96,7 @@ export function Composer() {
       });
       useToastStore
         .getState()
-        .push('success', 'Page attached', `${(page.text ?? '').length.toLocaleString()} chars of readable content added as context.`);
+        .push('success', 'Page attached', `${(page.text ?? '').length.toLocaleString()} chars of readable content added.`);
     } finally {
       setReadingPage(false);
     }
@@ -105,48 +122,23 @@ export function Composer() {
     }
 
     try {
-      // Prompt for microphone permission if not yet granted
-      if (navigator?.mediaDevices?.getUserMedia) {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          stream.getTracks().forEach((track) => track.stop());
-        } catch (micErr) {
-          useToastStore.getState().push(
-            'info',
-            'Allow Microphone Access 🎙️',
-            'Opening full tab to grant microphone permission. Click "Allow" on the Chrome prompt!',
-          );
-          if (typeof chrome !== 'undefined' && chrome.tabs?.create) {
-            void chrome.tabs.create({
-              url: chrome.runtime.getURL('src/options/index.html?tab=general&requestMic=1'),
-            });
-          }
-          return;
-        }
-      }
-
-      const baseDraft = draft.trim();
-
       const recognition = new SpeechRecognition();
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = language === 'bn' ? 'bn-BD' : 'en-US';
 
+      const baseDraft = draft;
+
       recognition.onstart = () => {
         setIsListening(true);
         useToastStore
           .getState()
-          .push(
-            'info',
-            '🎙️ Listening...',
-            language === 'bn' ? 'বাংলায় কথা বলুন...' : 'Listening... Speak into your microphone.',
-          );
+          .push('info', '🎙️ Listening...', 'Speak into your microphone.');
       };
 
       recognition.onresult = (event: any) => {
         let finalTranscript = '';
         let interimTranscript = '';
-
         for (let i = event.resultIndex; i < event.results.length; ++i) {
           if (event.results[i].isFinal) {
             finalTranscript += event.results[i][0].transcript;
@@ -154,12 +146,9 @@ export function Composer() {
             interimTranscript += event.results[i][0].transcript;
           }
         }
-
         const combined = [baseDraft, finalTranscript || interimTranscript].filter(Boolean).join(' ');
         setDraft(combined);
-        if (textareaRef.current) {
-          resize(textareaRef.current);
-        }
+        if (textareaRef.current) resize(textareaRef.current);
       };
 
       recognition.onerror = (event: any) => {
@@ -170,14 +159,10 @@ export function Composer() {
         }
       };
 
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-
+      recognition.onend = () => setIsListening(false);
       recognitionRef.current = recognition;
       recognition.start();
     } catch (err) {
-      console.warn('Speech init failed:', err);
       setIsListening(false);
       useToastStore.getState().push(
         'error',
@@ -186,9 +171,6 @@ export function Composer() {
       );
     }
   };
-
-  const serverProxyUrl = useSettingsStore((s) => s.serverProxyUrl);
-  const pinSessionToken = useSettingsStore((s) => s.pinSessionToken);
 
   const isAuto = selectedModel === 'auto' || !selectedModel;
   const isGemini = isGeminiModel(selectedModel);
@@ -223,21 +205,14 @@ export function Composer() {
   }
 
   const canSend = hasValidEngine && !isGenerating;
-  const placeholder =
-    messages.length === 0
-      ? isAuto
-        ? 'Ask anything… (Auto-routed with zero downtime)'
-        : isGemini || isCloud
-        ? 'Ask anything… (Enter to send)'
-        : 'Ask anything — I run 100% on your machine…'
-      : 'Follow up… (Enter to send, Shift+Enter for newline)';
 
   return (
-    <div className="border-t border-border/40 bg-card/50 backdrop-blur-xl px-4 pb-4 pt-2.5">
-      <div className="mx-auto flex max-w-4xl flex-col gap-2">
+    <div className="border-t border-border/40 bg-background/80 backdrop-blur-md px-4 pb-4 pt-2 select-none">
+      <div className="mx-auto flex max-w-4xl flex-col gap-3">
         <ContextChips slots={contextSlots} onRemove={(i) => void removeContextSlot(i)} />
 
-        <div className="rounded-2xl border border-border/80 bg-background/95 shadow-md shadow-black/5 transition-all focus-within:border-indigo-500/60 focus-within:ring-2 focus-within:ring-indigo-500/20">
+        {/* Voxle-style Floating Card Container */}
+        <div className="relative rounded-2xl border border-border/80 bg-card p-3 shadow-2xs transition-all focus-within:border-primary/60 focus-within:shadow-md focus-within:shadow-black/5">
           <Textarea
             ref={textareaRef}
             value={draft}
@@ -251,78 +226,95 @@ export function Composer() {
                 void submit();
               }
             }}
-            placeholder={placeholder}
+            placeholder="How can I help you today?"
             rows={1}
-            className="max-h-40 border-0 bg-transparent shadow-none focus-visible:ring-0 text-xs sm:text-sm"
+            className="max-h-44 border-0 bg-transparent px-1 py-1 shadow-none focus-visible:ring-0 text-xs sm:text-sm placeholder:text-muted-foreground/70 font-sans"
             disabled={isGenerating}
             aria-label="Message"
           />
-          <div className="flex items-center gap-1.5 px-2 pb-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 gap-1 px-2 text-xs transition-transform hover:scale-105"
-              onClick={() => void attachPage()}
-              disabled={readingPage || isGenerating}
-              title="Attach the current tab’s readable content as context"
-            >
-              {readingPage ? <Loader2 className="animate-spin" /> : <Globe className="h-3.5 w-3.5 text-indigo-400" />}
-              Read page
-            </Button>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(
-                'h-7 gap-1 px-2 text-xs transition-all hover:scale-105',
-                isListening && 'bg-red-500/15 text-red-500 animate-pulse ring-1 ring-red-500/30',
-              )}
-              onClick={toggleVoice}
-              disabled={isGenerating}
-              title={isListening ? 'Stop listening' : 'Voice dictation (Speak to prompt)'}
-            >
-              {isListening ? (
-                <>
-                  <MicOff className="h-3.5 w-3.5 text-red-500" />
-                  <span className="text-[11px] font-semibold text-red-500">Listening...</span>
-                </>
-              ) : (
-                <>
-                  <Mic className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground" />
-                  <span className="text-[11px]">Voice</span>
-                </>
-              )}
-            </Button>
-
-            <ToolsMenu />
-            <div className="flex-1" />
-            {isGenerating ? (
-              <Button variant="outline" size="sm" className="h-7 text-xs border-destructive/40 text-destructive hover:bg-destructive/10" onClick={stop}>
-                <Square className="h-3 w-3 fill-current" /> Stop
-              </Button>
-            ) : (
+          {/* Bottom Action Controls Bar */}
+          <div className="flex items-center justify-between pt-2">
+            {/* Left Action Buttons (+ Attach, Tools, Reset) */}
+            <div className="flex items-center gap-1">
               <Button
-                size="sm"
-                className="h-7 gap-1 bg-gradient-to-r from-indigo-600 to-violet-600 px-3 text-xs font-semibold text-white shadow-sm shadow-indigo-500/20 transition-all hover:scale-105 hover:from-indigo-500 hover:to-violet-500 disabled:opacity-50 disabled:hover:scale-100"
-                onClick={() => void submit()}
-                disabled={!draft.trim() || !canSend}
-                title="Send (Enter)"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-xl text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                onClick={() => void attachPage()}
+                disabled={readingPage || isGenerating}
+                title="Attach active page context"
               >
-                <CornerDownLeft className="h-3.5 w-3.5" />
-                Send
+                {readingPage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
               </Button>
-            )}
-          </div>
 
-          <div className="flex items-center justify-between border-t border-border/40 bg-muted/25 px-2.5 py-1 text-[11px]">
-            <ModelPicker />
-            {ollamaStatus === 'online' && useOllamaStore.getState().models.length === 0 ? (
-              <span className="text-[10px] text-muted-foreground">
-                Pull a model in Ollama to get started.
-              </span>
-            ) : null}
+              <ToolsMenu />
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-xl text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                onClick={() => void newSession()}
+                disabled={isGenerating}
+                title="Reset / New Chat"
+              >
+                <RotateCw className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+
+            {/* Right Action Buttons (Voice dictation + Voxle-style Blue Talk/Send Pill) */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  'h-8 w-8 rounded-xl text-muted-foreground transition-all hover:bg-accent hover:text-foreground',
+                  isListening && 'bg-red-500/15 text-red-500 animate-pulse ring-1 ring-red-500/30',
+                )}
+                onClick={toggleVoice}
+                disabled={isGenerating}
+                title={isListening ? 'Stop listening' : 'Voice Dictation'}
+              >
+                {isListening ? <MicOff className="h-4 w-4 text-red-500" /> : <Mic className="h-4 w-4" />}
+              </Button>
+
+              {isGenerating ? (
+                <button
+                  onClick={stop}
+                  className="flex items-center gap-1.5 rounded-xl border border-destructive/40 bg-destructive/10 px-3.5 py-1.5 text-xs font-bold text-destructive transition-colors hover:bg-destructive/20 active:scale-95"
+                >
+                  <Square className="h-3 w-3 fill-current" />
+                  <span>Stop</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => void submit()}
+                  disabled={!draft.trim() || !canSend}
+                  className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-1.5 text-xs font-bold text-primary-foreground shadow-2xs transition-all hover:opacity-95 hover:shadow-xs active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
+                  title="Send message (Enter)"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  <span>Talk</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
+
+        {/* Voxle-style Prompt Suggestion Pills (Shown when conversation is fresh) */}
+        {messages.length === 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
+            {SUGGESTION_PILLS.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => void submit(p.prompt)}
+                className="flex items-center justify-between rounded-xl border border-border/70 bg-card px-3.5 py-2 text-left text-xs font-medium text-foreground/80 shadow-2xs transition-all hover:border-primary/40 hover:bg-accent hover:text-foreground active:scale-[0.99]"
+              >
+                <span className="truncate">{p.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -40,17 +40,7 @@ export function ModelPicker() {
         value={selectedModel ?? 'auto'}
         onChange={(e) => void selectModel(e.target.value)}
         aria-label="Chat model"
-        className={
-          isAuto
-            ? 'border-emerald-500/60 font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5'
-            : isGemini
-            ? 'border-indigo-400/60 font-medium text-indigo-600 dark:text-indigo-400'
-            : isCloud
-            ? 'border-cyan-400/60 font-medium text-cyan-600 dark:text-cyan-400'
-            : large
-            ? 'border-amber-400/60 text-amber-600 dark:text-amber-400'
-            : ''
-        }
+        className="h-8 rounded-full border border-border/80 bg-card px-3.5 py-1 text-xs font-semibold text-foreground shadow-2xs transition-colors hover:bg-accent focus:border-primary/40 focus:ring-1 focus:ring-primary/30"
       >
         <optgroup label="🚀 Smart Quota &amp; Failover Router">
           <option value="auto">

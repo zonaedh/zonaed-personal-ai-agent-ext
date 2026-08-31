@@ -71,7 +71,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
 
           <button
             onClick={() => void newSession()}
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/25 transition-transform hover:scale-105"
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-white shadow-2xs transition-transform hover:scale-105"
             title="New Chat"
           >
             <Plus className="h-4 w-4" />
@@ -104,15 +104,15 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       <div className="flex flex-col gap-3 p-3.5 border-b border-border/40">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 via-purple-600 to-cyan-400 text-xs font-black text-white shadow-md shadow-indigo-500/30 ring-1 ring-white/20">
-              Z
+            <div className="flex h-7 w-7 items-center justify-center rounded-full border border-border/80 bg-card text-primary shadow-2xs">
+              <Sparkles className="h-3.5 w-3.5 fill-primary/20 text-primary" />
             </div>
             <div className="flex flex-col">
               <span className="text-xs font-bold tracking-tight text-foreground font-sans">
                 Zonaed AI
               </span>
               <span className="text-[10px] font-medium text-muted-foreground -mt-0.5">
-                Personal Autonomous Agent
+                Personal AI Agent
               </span>
             </div>
           </div>
@@ -129,13 +129,13 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
         {/* New Chat Button */}
         <button
           onClick={() => void newSession()}
-          className="flex w-full items-center justify-between rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 px-3.5 py-2.5 text-xs font-bold text-white shadow-md shadow-indigo-500/20 transition-all hover:opacity-95 hover:shadow-lg hover:shadow-indigo-500/30 active:scale-[0.99]"
+          className="flex w-full items-center justify-between rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-2xs transition-all hover:opacity-95 active:scale-[0.99]"
         >
           <div className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
             <span>New Chat</span>
           </div>
-          <span className="rounded bg-white/20 px-1.5 py-0.5 text-[9px] font-semibold text-white/90">
+          <span className="rounded-md bg-white/20 px-1.5 py-0.5 text-[9px] font-semibold text-white">
             Ctrl+K
           </span>
         </button>
@@ -148,7 +148,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
             placeholder="Search conversations…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full rounded-lg border border-border/50 bg-background/60 py-1.5 pl-8 pr-2.5 text-xs text-foreground placeholder:text-muted-foreground/70 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/30"
+            className="w-full rounded-xl border border-border/70 bg-background/60 py-1.5 pl-8 pr-2.5 text-xs text-foreground placeholder:text-muted-foreground/70 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30"
           />
         </div>
       </div>

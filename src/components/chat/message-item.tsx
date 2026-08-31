@@ -36,7 +36,7 @@ export const MessageItem = memo(function MessageItem({
   if (message.role === 'user') {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[88%] whitespace-pre-wrap rounded-2xl rounded-tr-xs bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 px-3.5 py-2 text-xs sm:text-sm text-white shadow-md shadow-indigo-500/15">
+        <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-tr-xs bg-primary px-4 py-2.5 text-xs sm:text-sm font-medium text-primary-foreground shadow-2xs">
           {message.content}
         </div>
       </div>
@@ -98,9 +98,9 @@ export const MessageItem = memo(function MessageItem({
   };
 
   return (
-    <div className="group flex items-start gap-2.5">
-      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 via-purple-500 to-cyan-500 text-xs font-black text-white shadow-sm shadow-indigo-500/20 ring-1 ring-white/20">
-        Z
+    <div className="group flex items-start gap-3">
+      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border/80 bg-card text-primary shadow-2xs">
+        <Bot className="h-3.5 w-3.5 text-primary" />
       </div>
       <div className="min-w-0 flex-1">
         {thinking ? (
