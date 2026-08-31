@@ -15,25 +15,25 @@ export interface CloudModelDef {
 export const CLOUD_MODELS: CloudModelDef[] = [
   // Groq (Ultra-Fast LPUs - Verified Live)
   {
-    id: 'groq:llama-3.3-70b-versatile',
-    name: 'Llama 3.3 70B Versatile (Groq)',
+    id: 'groq:qwen/qwen3.8-27b',
+    name: 'Qwen 3.8 27B (Groq)',
     provider: 'groq',
-    badge: 'Flagship · Ultra-Fast',
-    description: 'Meta Flagship 70B on Groq LPUs at 300+ tokens/sec',
+    badge: 'Bangla & Copy · 500+ t/s',
+    description: 'Ultra-fast inference on Groq LPUs at 500+ tokens/sec',
   },
   {
-    id: 'groq:deepseek-r1-distill-llama-70b',
-    name: 'DeepSeek R1 70B (Groq)',
+    id: 'groq:openai/gpt-oss-120b',
+    name: 'GPT-OSS 120B (Groq)',
     provider: 'groq',
-    badge: 'Reasoning · High-IQ',
-    description: 'DeepSeek R1 Distill 70B reasoning model powered by Groq',
+    badge: '120B High-IQ · Reasoning',
+    description: 'Massive open 120B reasoning model powered by Groq',
   },
   {
-    id: 'groq:llama-3.1-8b-instant',
-    name: 'Llama 3.1 8B Instant (Groq)',
+    id: 'groq:openai/gpt-oss-20b',
+    name: 'GPT-OSS 20B (Groq)',
     provider: 'groq',
-    badge: '800+ t/s · Instant',
-    description: 'Ultra high-speed instant response on Groq',
+    badge: 'Fast Reasoning · Code',
+    description: 'High-speed reasoning and code analysis on Groq',
   },
   {
     id: 'groq:qwen/qwen3.6-27b',

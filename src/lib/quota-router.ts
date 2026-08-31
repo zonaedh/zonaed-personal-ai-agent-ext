@@ -59,19 +59,19 @@ export function getRouteCandidates(
 
   if (hasGroq) {
     pool.push({
-      model: 'groq:llama-3.3-70b-versatile',
+      model: 'groq:qwen/qwen3.8-27b',
       provider: 'groq',
-      label: 'Llama 3.3 70B (Groq)',
+      label: 'Qwen 3.8 27B (Groq)',
     });
     pool.push({
-      model: 'groq:deepseek-r1-distill-llama-70b',
+      model: 'groq:openai/gpt-oss-120b',
       provider: 'groq',
-      label: 'DeepSeek R1 70B (Groq)',
+      label: 'GPT-OSS 120B (Groq)',
     });
     pool.push({
-      model: 'groq:llama-3.1-8b-instant',
+      model: 'groq:openai/gpt-oss-20b',
       provider: 'groq',
-      label: 'Llama 3.1 8B (Groq)',
+      label: 'GPT-OSS 20B (Groq)',
     });
     pool.push({
       model: 'groq:qwen/qwen3.6-27b',

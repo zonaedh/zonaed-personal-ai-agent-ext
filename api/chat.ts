@@ -85,9 +85,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let resolvedModel = model;
     if (resolvedModel === 'auto') {
       if (GROQ_API_KEY) {
-        resolvedModel = 'groq:llama-3.3-70b-versatile';
+        resolvedModel = 'groq:qwen/qwen3.8-27b';
       } else if (GEMINI_API_KEY) {
-        resolvedModel = 'gemini-3.7-flash';
+        resolvedModel = 'gemini-3.6-flash';
       } else if (OPENROUTER_API_KEY) {
         resolvedModel = 'openrouter:openrouter/free';
       } else {

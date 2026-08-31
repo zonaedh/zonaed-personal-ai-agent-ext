@@ -28,7 +28,7 @@ interface OllamaState {
 export const useOllamaStore = create<OllamaState>()((set, get) => ({
   status: 'checking',
   models: [],
-  selectedModel: 'groq:llama-3.3-70b-versatile',
+  selectedModel: 'groq:qwen/qwen3.8-27b',
   lastCheckedAt: 0,
 
   async refresh(force = false) {
@@ -78,7 +78,7 @@ export const useOllamaStore = create<OllamaState>()((set, get) => ({
     } else if (!selected || !get().models.some((m) => m.name === selected)) {
       const next = get().models.some((m) => m.name === saved)
         ? saved
-        : (saved || 'groq:llama-3.3-70b-versatile');
+        : (saved || 'groq:qwen/qwen3.8-27b');
       set({ selectedModel: next });
       void useSettingsStore.getState().update({ lastModel: next });
     }
@@ -102,7 +102,7 @@ export const useOllamaStore = create<OllamaState>()((set, get) => ({
       void useSettingsStore.getState().update({ lastModel: first });
       return first;
     }
-    return 'groq:llama-3.3-70b-versatile';
+    return 'groq:qwen/qwen3.8-27b';
   },
 
   async testConnection(url: string): Promise<boolean> {

@@ -45,7 +45,7 @@ export function PinGate({ onUnlocked }: PinGateProps) {
     // Strategy 1: If local masterPin is configured and matches
     if (masterPin && cleanPin === masterPin) {
       setLoading(false);
-      await useOllamaStore.getState().selectModel(useSettingsStore.getState().lastModel || 'groq:llama-3.3-70b-versatile');
+      await useOllamaStore.getState().selectModel(useSettingsStore.getState().lastModel || 'groq:qwen/qwen3.8-27b');
       useToastStore.getState().push('success', 'Unlocked 🔓', 'Welcome back, Zonaed.');
       onUnlocked();
       return;
@@ -55,7 +55,7 @@ export function PinGate({ onUnlocked }: PinGateProps) {
     if (effectiveProxyUrl) {
       const res = await verifyServerPin(effectiveProxyUrl, cleanPin);
       if (res.ok && res.token) {
-        const defaultModel = res.defaultModel || 'groq:llama-3.3-70b-versatile';
+        const defaultModel = res.defaultModel || 'groq:qwen/qwen3.8-27b';
         await update({
           pinSessionToken: res.token,
           isLocked: false,
