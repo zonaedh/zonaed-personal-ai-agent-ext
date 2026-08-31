@@ -47,10 +47,11 @@ export function getRouteCandidates(
   settings: Settings,
   localModels: OllamaModel[] = [],
 ): RouteCandidate[] {
-  const hasGroq = Boolean(settings.groqApiKey?.trim());
-  const hasGemini = Boolean(settings.geminiApiKey?.trim());
-  const hasOpenRouter = Boolean(settings.openRouterApiKey?.trim());
-  const hasDeepSeek = Boolean(settings.deepSeekApiKey?.trim());
+  const hasServerProxy = Boolean(settings.serverProxyUrl?.trim() || settings.pinSessionToken?.trim());
+  const hasGroq = Boolean(settings.groqApiKey?.trim()) || hasServerProxy;
+  const hasGemini = Boolean(settings.geminiApiKey?.trim()) || hasServerProxy;
+  const hasOpenRouter = Boolean(settings.openRouterApiKey?.trim()) || hasServerProxy;
+  const hasDeepSeek = Boolean(settings.deepSeekApiKey?.trim()) || hasServerProxy;
   const hasLocal = localModels.length > 0;
 
   // Build pool of all viable healthy providers in optimal priority
@@ -58,9 +59,24 @@ export function getRouteCandidates(
 
   if (hasGroq) {
     pool.push({
-      model: 'groq:qwen/qwen3.8-27b',
+      model: 'groq:llama-3.3-70b-versatile',
       provider: 'groq',
-      label: 'Qwen 3.8 27B (Groq)',
+      label: 'Llama 3.3 70B (Groq)',
+    });
+    pool.push({
+      model: 'groq:deepseek-r1-distill-llama-70b',
+      provider: 'groq',
+      label: 'DeepSeek R1 70B (Groq)',
+    });
+    pool.push({
+      model: 'groq:llama-3.1-8b-instant',
+      provider: 'groq',
+      label: 'Llama 3.1 8B (Groq)',
+    });
+    pool.push({
+      model: 'groq:qwen/qwen3.6-27b',
+      provider: 'groq',
+      label: 'Qwen 3.6 27B (Groq)',
     });
   }
 
@@ -70,17 +86,6 @@ export function getRouteCandidates(
       provider: 'gemini',
       label: 'Gemini 3.7 Flash',
     });
-  }
-
-  if (hasGroq) {
-    pool.push({
-      model: 'groq:openai/gpt-oss-120b',
-      provider: 'groq',
-      label: 'GPT-OSS 120B (Groq)',
-    });
-  }
-
-  if (hasGemini) {
     pool.push({
       model: 'gemini-3.6-flash',
       provider: 'gemini',

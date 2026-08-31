@@ -13,33 +13,33 @@ export interface CloudModelDef {
 }
 
 export const CLOUD_MODELS: CloudModelDef[] = [
-  // Groq (Ultra-Fast Free Tier - Verified Live)
+  // Groq (Ultra-Fast LPUs - Verified Live)
   {
-    id: 'groq:qwen/qwen3.8-27b',
-    name: 'Qwen 3.8 27B (Groq)',
+    id: 'groq:llama-3.3-70b-versatile',
+    name: 'Llama 3.3 70B Versatile (Groq)',
     provider: 'groq',
-    badge: 'Bangla & Copy · Ultra Fast',
-    description: 'Next-gen Qwen model on Groq LPUs at 500+ tokens/sec',
+    badge: 'Flagship · Ultra-Fast',
+    description: 'Meta Flagship 70B on Groq LPUs at 300+ tokens/sec',
   },
   {
-    id: 'groq:openai/gpt-oss-120b',
-    name: 'GPT-OSS 120B (Groq)',
+    id: 'groq:deepseek-r1-distill-llama-70b',
+    name: 'DeepSeek R1 70B (Groq)',
     provider: 'groq',
-    badge: '120B Reasoning · Free',
-    description: 'Massive open 120B reasoning model powered by Groq',
+    badge: 'Reasoning · High-IQ',
+    description: 'DeepSeek R1 Distill 70B reasoning model powered by Groq',
   },
   {
-    id: 'groq:openai/gpt-oss-20b',
-    name: 'GPT-OSS 20B (Groq)',
+    id: 'groq:llama-3.1-8b-instant',
+    name: 'Llama 3.1 8B Instant (Groq)',
     provider: 'groq',
-    badge: 'Fast Reasoning · Free',
-    description: 'High-speed reasoning and code analysis on Groq',
+    badge: '800+ t/s · Instant',
+    description: 'Ultra high-speed instant response on Groq',
   },
   {
     id: 'groq:qwen/qwen3.6-27b',
     name: 'Qwen 3.6 27B (Groq)',
     provider: 'groq',
-    badge: 'Multilingual · Free',
+    badge: 'Multilingual · Fast',
     description: 'Fast versatile multilingual assistant on Groq',
   },
 

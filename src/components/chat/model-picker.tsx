@@ -42,10 +42,12 @@ export function ModelPicker() {
         aria-label="Chat model"
         className="h-8 max-w-[130px] xs:max-w-[160px] sm:max-w-[210px] md:max-w-none truncate rounded-full border border-border/80 bg-card px-2.5 sm:px-3.5 py-1 text-xs font-semibold text-foreground shadow-2xs transition-colors hover:bg-accent focus:border-primary/40 focus:ring-1 focus:ring-primary/30"
       >
-        <optgroup label="🚀 Smart Quota &amp; Failover Router">
-          <option value="auto">
-            🚀 Auto (Smart Quota Router) · Zero Downtime
-          </option>
+        <optgroup label="⚡ Groq Cloud (Ultra-Fast LPU Inference)">
+          {groqModels.map((m) => (
+            <option key={m.id} value={m.id}>
+              ⚡ {m.name} · {m.badge}
+            </option>
+          ))}
         </optgroup>
         <optgroup label="✨ Google Gemini (Cloud · 1M Context)">
           {GEMINI_MODELS.map((gm) => (
@@ -54,12 +56,10 @@ export function ModelPicker() {
             </option>
           ))}
         </optgroup>
-        <optgroup label="⚡ Groq Cloud (Free DeepSeek &amp; Qwen)">
-          {groqModels.map((m) => (
-            <option key={m.id} value={m.id}>
-              ⚡ {m.name} · {m.badge}
-            </option>
-          ))}
+        <optgroup label="🚀 Smart Quota &amp; Failover Router">
+          <option value="auto">
+            🚀 Auto (Smart Quota Router) · Zero Downtime
+          </option>
         </optgroup>
         <optgroup label="🌐 OpenRouter (Free Tier Models)">
           {openRouterModels.map((m) => (

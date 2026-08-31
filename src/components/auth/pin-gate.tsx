@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { verifyServerPin } from '@/lib/server-proxy';
 import { useSettingsStore } from '@/store/settings-store';
+import { useOllamaStore } from '@/store/ollama-store';
 import { useToastStore } from '@/store/toast-store';
 
 interface PinGateProps {
@@ -44,6 +45,7 @@ export function PinGate({ onUnlocked }: PinGateProps) {
     // Strategy 1: If local masterPin is configured and matches
     if (masterPin && cleanPin === masterPin) {
       setLoading(false);
+      await useOllamaStore.getState().selectModel(useSettingsStore.getState().lastModel || 'groq:llama-3.3-70b-versatile');
       useToastStore.getState().push('success', 'Unlocked 🔓', 'Welcome back, Zonaed.');
       onUnlocked();
       return;
@@ -53,9 +55,15 @@ export function PinGate({ onUnlocked }: PinGateProps) {
     if (effectiveProxyUrl) {
       const res = await verifyServerPin(effectiveProxyUrl, cleanPin);
       if (res.ok && res.token) {
-        await update({ pinSessionToken: res.token, isLocked: false });
+        const defaultModel = res.defaultModel || 'groq:llama-3.3-70b-versatile';
+        await update({
+          pinSessionToken: res.token,
+          isLocked: false,
+          lastModel: useSettingsStore.getState().lastModel || defaultModel,
+        });
+        await useOllamaStore.getState().selectModel(useSettingsStore.getState().lastModel || defaultModel);
         setLoading(false);
-        useToastStore.getState().push('success', 'Authenticated 🛡️', 'Secure Vercel proxy connected.');
+        useToastStore.getState().push('success', 'Authenticated 🛡️', 'Secure Vercel proxy & Groq connected.');
         onUnlocked();
         return;
       }

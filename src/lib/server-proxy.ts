@@ -25,7 +25,7 @@ export const FALLBACK_PROXY_URL = 'https://zonaed-personal-ai-agent-ext.vercel.a
 export async function verifyServerPin(
   proxyBaseUrl: string,
   pin: string,
-): Promise<{ ok: boolean; token?: string; error?: string }> {
+): Promise<{ ok: boolean; token?: string; defaultModel?: string; error?: string }> {
   const candidates = [
     proxyBaseUrl,
     DEFAULT_PROXY_URL,
@@ -49,7 +49,7 @@ export async function verifyServerPin(
 
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.token) {
-        return { ok: true, token: data.token };
+        return { ok: true, token: data.token, defaultModel: data.defaultModel };
       }
       if (res.status === 401) {
         return { ok: false, error: 'Invalid Master PIN. Please try again.' };

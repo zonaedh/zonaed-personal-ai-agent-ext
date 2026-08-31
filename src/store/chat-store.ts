@@ -189,8 +189,10 @@ export const useChatStore = create<ChatState>()((set, get) => {
     const isGemini = isGeminiModel(activeModel);
     const isCloud = isCloudModel(activeModel);
 
+    const hasProxy = Boolean(settings.serverProxyUrl || settings.pinSessionToken);
+
     if (isGemini) {
-      if (!settings.geminiApiKey) {
+      if (!settings.geminiApiKey && !hasProxy) {
         useToastStore.getState().push(
           'error',
           'Gemini API Key missing',
@@ -207,7 +209,7 @@ export const useChatStore = create<ChatState>()((set, get) => {
           : provider === 'deepseek'
           ? settings.deepSeekApiKey
           : settings.openRouterApiKey;
-      if (!key) {
+      if (!key && !hasProxy) {
         useToastStore.getState().push(
           'error',
           `${provider.toUpperCase()} API Key missing`,

@@ -65,6 +65,11 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
   return res.status(200).json({
     success: true,
     token: sessionToken,
+    defaultModel: 'groq:llama-3.3-70b-versatile',
+    hasGroq: Boolean(process.env.GROQ_API_KEY),
+    hasGemini: Boolean(process.env.GEMINI_API_KEY),
+    hasOpenRouter: Boolean(process.env.OPENROUTER_API_KEY),
+    hasDeepSeek: Boolean(process.env.DEEPSEEK_API_KEY),
     message: 'Authenticated successfully',
   });
 }

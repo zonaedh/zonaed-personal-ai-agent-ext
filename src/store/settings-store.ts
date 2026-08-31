@@ -41,7 +41,7 @@ export const DEFAULT_SETTINGS: Settings = {
   isLocked: true,
   theme: 'system',
   maxContextChars: 40000,
-  lastModel: 'auto',
+  lastModel: 'groq:llama-3.3-70b-versatile',
   translateTargetLang: 'English',
   language: 'en',
 };
