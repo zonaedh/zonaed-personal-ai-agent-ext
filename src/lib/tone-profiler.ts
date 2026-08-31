@@ -17,23 +17,34 @@ export interface ToneProfile {
  * Common Banglish (Romanized Bengali) keywords.
  * If user types phonetically in English letters, this detects it as Bangla context.
  */
-const BANGLISH_KEYWORDS = [
-  'ami', 'amake', 'amader', 'amr', 'amar', 'tumi', 'tomake', 'tomader', 'tomar',
-  'apni', 'apnake', 'apnader', 'apnar', 'keno', 'kivabe', 'kibhabe', 'kemon',
-  'koro', 'korbe', 'korbo', 'korte', 'kore', 'kora', 'korsi', 'koresi', 'korchi',
-  'daw', 'dao', 'dorkar', 'ache', 'achey', 'nai', 'hobe', 'hocche', 'hoise',
-  'eta', 'eita', 'ota', 'oita', 'tokhn', 'jokhn', 'ekhn', 'karon', 'bhalo', 'valo',
-  'chai', 'dekho', 'bolo', 'bolte', 'bolbo', 'bolbe', 'shune', 'shono', 'khub',
-  'beshi', 'kom', 'shob', 'sob', 'jeta', 'seta', 'thakbe', 'ashbe', 'jabe',
-  'parbo', 'parbe', 'thik', 'bhul', 'vul', 'lagbe', 'dite', 'dicchi', 'dilam',
-  'nebo', 'nibo', 'bujhlam', 'bujhte', 'bolchi', 'korar', 'dile', 'gele', 'ashle',
-  'ki', 'kintu', 'ar', 'r', 'na', 'hoye', 'hoy', 'geche', 'gula', 'gulo', 'tai',
-];
-
-const BANGLISH_REGEX = new RegExp(
-  `\\b(${BANGLISH_KEYWORDS.join('|')})\\b`,
-  'gi',
-);
+const BANGLISH_WORDS = new Set([
+  'ami', 'amr', 'amar', 'amake', 'amader', 'tumi', 'tmr', 'tomar', 'tomake', 'tomader',
+  'apni', 'apnr', 'apnar', 'apnake', 'apnader', 'she', 'shey', 'taar', 'tar', 'tader', 'take',
+  'era', 'ora', 'ini', 'uni', 'keno', 'kno', 'kivabe', 'kibhabe', 'kivabhe', 'kemon', 'kmn',
+  'ki', 'kothay', 'kothae', 'koi', 'kokhon', 'kobe', 'koto', 'kototuku', 'konta', 'kon', 'kono',
+  'koro', 'korbe', 'korbo', 'korte', 'kore', 'kora', 'kori', 'korsi', 'koresi', 'korsilam',
+  'korchisilam', 'korchi', 'kortesi', 'kortam', 'koren', 'korben', 'korlei', 'korle', 'korar',
+  'banano', 'banate', 'banabo', 'banai', 'banao', 'banaite', 'banaisi', 'banay', 'daw', 'dao',
+  'den', 'diben', 'dibo', 'dibe', 'dilam', 'dite', 'disi', 'dicchi', 'dici', 'lagbe', 'lage',
+  'laglo', 'lagtese', 'dorkar', 'ache', 'ase', 'nai', 'nei', 'silo', 'chilo', 'thakbe', 'thake',
+  'thak', 'thako', 'thaken', 'thakle', 'ashbe', 'ashe', 'asho', 'ashen', 'ashlam', 'ashle',
+  'jabe', 'jay', 'jao', 'jan', 'gelam', 'geche', 'gese', 'gaisi', 'gele', 'parbo', 'parbe',
+  'pari', 'paren', 'parben', 'parle', 'parbona', 'bolo', 'bolte', 'bolbo', 'bolbe', 'boli',
+  'bolsi', 'bollen', 'bolen', 'bollei', 'dekho', 'dekhte', 'dekhbo', 'dekhbe', 'dekhi', 'dekhsi',
+  'dekhlen', 'dekhen', 'shono', 'shunte', 'shunbo', 'shunbe', 'shuni', 'shunsi', 'shunlen',
+  'shunlam', 'bujhi', 'bujhlam', 'bujhlen', 'bujhina', 'bujhte', 'chai', 'chao', 'chan',
+  'chailam', 'chaise', 'chaile', 'nebo', 'nibo', 'nao', 'nen', 'nilam', 'nite', 'pelam',
+  'pailam', 'pelen', 'pao', 'pan', 'peyechi', 'paici', 'pawar', 'ajke', 'aj', 'kalke', 'kal',
+  'gotokal', 'poroshu', 'ekta', 'duita', 'tinta', 'koyekta', 'onek', 'onk', 'beshi', 'bishi',
+  'kom', 'khub', 'ektu', 'aro', 'r', 'ar', 'o', 'e', 'ei', 'oi', 'eta', 'ota', 'eita', 'oita',
+  'eikhane', 'oikhane', 'ekhane', 'okhane', 'kotha', 'barta', 'nam', 'naam', 'kaj', 'kaaj',
+  'bhalo', 'valo', 'kharap', 'thik', 'bhul', 'vul', 'sundor', 'shohoj', 'kothin', 'druto',
+  'aste', 'shuru', 'sesh', 'shesh', 'jemon', 'jemne', 'emne', 'temne', 'tai', 'tahole', 'tobe',
+  'jodi', 'jodio', 'jehetu', 'karon', 'karone', 'kintu', 'jeta', 'seta', 'sheta', 'shob',
+  'sob', 'shobai', 'sobai', 'shobgula', 'sobgula', 'egula', 'ogula', 'aigula', 'oigula',
+  'kichu', 'ekdom', 'hobe', 'hocche', 'hoitase', 'hoise', 'hoilo', 'hoy', 'hoye', 'gulo',
+  'gula', 'jonno', 'jonne', 'kache', 'theke', 'diye', 'dia', 'moto', 'moton', 'motoi', 'er'
+]);
 
 /**
  * Detect the primary language of user text based on:
@@ -55,16 +66,26 @@ export function detectLanguage(text: string): DetectedLanguage {
   }
 
   const scriptRatio = banglaCount / chars.length;
-  if (scriptRatio > 0.15) return 'bn';
+  if (scriptRatio > 0.1) return 'bn';
 
-  // 2. Banglish keyword matching
-  const banglishMatches = trimmed.match(BANGLISH_REGEX);
-  if (banglishMatches && banglishMatches.length >= 2) {
-    return 'bn';
+  // 2. Banglish dictionary matching
+  const words = trimmed
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (words.length === 0) return 'en';
+
+  let banglishMatchCount = 0;
+  for (const w of words) {
+    if (BANGLISH_WORDS.has(w)) {
+      banglishMatchCount++;
+    }
   }
 
-  // 3. Mixed / Single word check
-  if (banglishMatches && banglishMatches.length === 1 && trimmed.split(/\s+/).length <= 4) {
+  // If at least 1 strong Banglish word in short text or >= 10% in longer text
+  if (banglishMatchCount >= 1 && (words.length <= 5 || banglishMatchCount / words.length >= 0.1)) {
     return 'bn';
   }
 

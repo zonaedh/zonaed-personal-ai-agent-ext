@@ -80,10 +80,16 @@ You MUST reply ONLY in clear, concise, professional, and tech-savvy English.
     );
   }
 
-  const parts = [base, langDirective];
+  const footerReminder =
+    language === 'bn'
+      ? '[FINAL MANDATORY INSTRUCTION: You MUST output your entire response in BANGLA (বাংলা). Do NOT output in English even if instructions above are in English. Follow the Bangla tone style guide above. Strictly no em-dashes.]'
+      : '[FINAL MANDATORY INSTRUCTION: You MUST output your entire response in ENGLISH. Do NOT output in Bengali. Strictly no em-dashes.]';
+
+  const parts = [langDirective, base];
   if (taskHint) parts.push(`This turn’s task: ${taskHint}`);
   if (slotBlocks.length > 0) {
     parts.push(`The user attached the following context. Use it when answering:\n\n${slotBlocks.join('\n\n---\n\n')}`);
   }
+  parts.push(footerReminder);
   return parts.join('\n\n');
 }

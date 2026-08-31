@@ -312,7 +312,7 @@ export const useChatStore = create<ChatState>()((set, get) => {
           language: activeLanguage,
         });
 
-        const systemPrompt = [preamble, draftInstruction, baseSystemPrompt].filter(Boolean).join('\n\n');
+        const systemPrompt = [baseSystemPrompt, preamble, draftInstruction].filter(Boolean).join('\n\n');
 
         const historySlice = isCandidateGroq && slots.length > 0
           ? next.slice(-10, -1)
