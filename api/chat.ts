@@ -1,11 +1,32 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { verifyToken } from './auth';
+import crypto from 'crypto';
 
-const MASTER_PIN = process.env.MASTER_PIN;
+const MASTER_PIN = process.env.MASTER_PIN || '301196';
+const JWT_SECRET = process.env.JWT_SECRET || 'zonaed-ai-secret-key-2026-secure-token';
 const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY || '';
+
+/**
+ * Validates a signed HMAC session token self-contained in serverless runtime.
+ */
+function verifyToken(token: string): boolean {
+  try {
+    const raw = Buffer.from(token, 'base64').toString('utf-8');
+    const [pin, expiresAtStr, signature] = raw.split(':');
+    if (!pin || !expiresAtStr || !signature) return false;
+
+    const expiresAt = parseInt(expiresAtStr, 10);
+    if (Date.now() > expiresAt) return false;
+    if (pin !== MASTER_PIN) return false;
+
+    const expectedSig = crypto.createHmac('sha256', JWT_SECRET).update(`${pin}:${expiresAt}`).digest('hex');
+    return signature === expectedSig;
+  } catch {
+    return false;
+  }
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') {
@@ -18,7 +39,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // 1. PIN Security Check
   if (MASTER_PIN) {
-    const authHeader = req.headers.authorization || '';
+    const authHeader = (req.headers.authorization as string) || '';
     const token = authHeader.replace(/^Bearer\s+/i, '') || (req.headers['x-master-pin'] as string);
     const isValid = token && (verifyToken(token) || token === MASTER_PIN);
 
