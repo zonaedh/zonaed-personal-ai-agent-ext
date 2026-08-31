@@ -135,7 +135,9 @@ export function OptionsApp({ onClose, initialTab }: OptionsAppProps = {}) {
   const lastModel = useSettingsStore((s) => s.lastModel);
 
   useEffect(() => {
-    void useSettingsStore.getState().load();
+    if (!useSettingsStore.getState().ready) {
+      void useSettingsStore.getState().load();
+    }
     const params = new URLSearchParams(window.location.search);
     if (params.get('requestMic') === '1') {
       void (async () => {

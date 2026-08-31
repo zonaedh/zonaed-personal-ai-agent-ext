@@ -39,6 +39,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   const newSession = useChatStore((s) => s.newSession);
   const openTool = useToolsStore((s) => s.open);
   const lock = useSettingsStore((s) => s.lock);
+  const openSettings = useSettingsStore((s) => s.openSettings);
 
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<ChatSessionMeta[] | null>(null);
@@ -79,7 +80,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
 
         <div className="flex flex-col items-center gap-2">
           <button
-            onClick={() => void openOptionsPage()}
+            onClick={() => openSettings()}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             title="Settings"
           >
@@ -254,7 +255,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
 
           <div className="flex items-center gap-1">
             <button
-              onClick={() => void openOptionsPage()}
+              onClick={() => openSettings()}
               className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
               title="Settings &amp; Dashboard"
             >

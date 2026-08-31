@@ -20,6 +20,7 @@ export function ChatHeader({ sidebarCollapsed, onToggleSidebar }: ChatHeaderProp
   const newSession = useChatStore((s) => s.newSession);
   const theme = useSettingsStore((s) => s.theme);
   const update = useSettingsStore((s) => s.update);
+  const openSettings = useSettingsStore((s) => s.openSettings);
 
   const [themeBusy, setThemeBusy] = useState(false);
   const toggleTheme = async () => {
@@ -84,7 +85,7 @@ export function ChatHeader({ sidebarCollapsed, onToggleSidebar }: ChatHeaderProp
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => void openOptionsPage()}
+          onClick={() => openSettings()}
           className="h-8 w-8 transition-transform hover:scale-105 text-muted-foreground hover:text-foreground"
           title="Agent Dashboard & Settings"
           aria-label="Agent Dashboard & Settings"
