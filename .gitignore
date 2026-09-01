@@ -1,6 +1,4 @@
 node_modules/
-dist/
-*.zip
 *.log
 .DS_Store
 public/tessdata/*.traineddata
