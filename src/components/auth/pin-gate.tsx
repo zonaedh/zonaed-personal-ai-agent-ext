@@ -6,6 +6,7 @@ import { useSettingsStore } from '@/store/settings-store';
 import { useOllamaStore } from '@/store/ollama-store';
 import { useToastStore } from '@/store/toast-store';
 import { recordUserActivity } from '@/lib/auto-lock';
+import { DesktopAiCompanion } from '@/components/auth/desktop-ai-companion';
 
 interface PinGateProps {
   onUnlocked: () => void;
@@ -119,8 +120,11 @@ export function PinGate({ onUnlocked }: PinGateProps) {
         <div className="absolute -bottom-32 left-1/3 h-64 w-64 rounded-full bg-cyan-500/15 blur-3xl" />
       </div>
 
-      {/* Center Container for PIN Card (Perfect Middle Alignment on iOS/Android & Desktop) */}
-      <div className="relative z-10 flex flex-1 w-full flex-col items-center justify-center my-auto py-2 sm:py-4">
+      {/* Center Container for PIN Card & Desktop AI Companion */}
+      <div className="relative z-10 flex flex-1 w-full max-w-5xl flex-col lg:flex-row items-center justify-center gap-6 lg:gap-10 xl:gap-12 my-auto py-2 sm:py-4">
+        {/* Desktop Only: Interactive Futuristic AI Autonomous Robot */}
+        <DesktopAiCompanion />
+
         {/* Main Glassmorphism PIN Card */}
         <div
           className={`relative flex w-full max-w-[340px] sm:max-w-sm flex-col items-center gap-4 sm:gap-5 rounded-3xl border border-border/70 bg-card/65 p-5 sm:p-6 shadow-2xl backdrop-blur-2xl transition-all duration-300 ${

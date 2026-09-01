@@ -313,6 +313,10 @@
   animation: lock-shake 0.45s ease-in-out;
 }
 
+.animate-spin-slow {
+  animation: cyber-orbit 10s linear infinite;
+}
+
 .streaming-caret::after {
   content: '▍';
   margin-left: 1px;
