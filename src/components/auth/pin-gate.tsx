@@ -111,7 +111,7 @@ export function PinGate({ onUnlocked }: PinGateProps) {
   };
 
   return (
-    <div className="relative flex min-h-[100dvh] h-[100dvh] max-h-[100dvh] w-full flex-col justify-between items-center bg-gradient-to-b from-background via-background/95 to-card px-4 py-4 sm:py-6 overflow-y-auto overscroll-none text-foreground font-sans safe-top safe-bottom">
+    <div className="relative flex min-h-[100dvh] h-[100dvh] max-h-[100dvh] w-full flex-col items-center justify-between bg-gradient-to-b from-background via-background/95 to-card px-4 py-3 sm:py-6 overflow-y-auto overscroll-none text-foreground font-sans safe-top safe-bottom">
       {/* Ambient Futuristic Background Particles / Aura */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-32 -left-32 h-72 w-72 rounded-full bg-indigo-600/15 blur-3xl" />
@@ -119,15 +119,14 @@ export function PinGate({ onUnlocked }: PinGateProps) {
         <div className="absolute -bottom-32 left-1/3 h-64 w-64 rounded-full bg-cyan-500/15 blur-3xl" />
       </div>
 
-      {/* Top Spacer for balanced vertical centering */}
-      <div className="hidden sm:block shrink-0 h-2" />
-
-      {/* Main Glassmorphism PIN Card */}
-      <div
-        className={`relative z-10 flex w-full max-w-[340px] sm:max-w-sm flex-col items-center gap-4 sm:gap-5 rounded-3xl border border-border/70 bg-card/65 p-5 sm:p-6 shadow-2xl backdrop-blur-2xl transition-all duration-300 ${
-          isShaking ? 'animate-shake' : ''
-        }`}
-      >
+      {/* Center Container for PIN Card (Perfect Middle Alignment on iOS/Android & Desktop) */}
+      <div className="relative z-10 flex flex-1 w-full flex-col items-center justify-center my-auto py-2 sm:py-4">
+        {/* Main Glassmorphism PIN Card */}
+        <div
+          className={`relative flex w-full max-w-[340px] sm:max-w-sm flex-col items-center gap-4 sm:gap-5 rounded-3xl border border-border/70 bg-card/65 p-5 sm:p-6 shadow-2xl backdrop-blur-2xl transition-all duration-300 ${
+            isShaking ? 'animate-shake' : ''
+          }`}
+        >
         {/* Futuristic Animated Lock Core Container */}
         <div className="relative flex items-center justify-center my-1 select-none">
           {/* Outer Pulsing Radar Wave */}
@@ -275,6 +274,7 @@ export function PinGate({ onUnlocked }: PinGateProps) {
           )}
         </Button>
       </div>
+    </div>
 
       {/* Futuristic Responsive Footer Attribution & Links */}
       <footer className="relative z-10 mt-4 mb-1 flex flex-col items-center gap-2 text-center text-xs text-muted-foreground select-none">
