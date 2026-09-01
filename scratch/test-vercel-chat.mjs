@@ -20,7 +20,7 @@ async function test() {
       'Authorization': `Bearer ${authData.token}`,
     },
     body: JSON.stringify({
-      model: 'groq:llama-3.3-70b-versatile',
+      model: authData.defaultModel || 'groq:qwen/qwen3.8-27b',
       messages: [{ role: 'user', content: 'Hi, are you working?' }],
     }),
   });

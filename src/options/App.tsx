@@ -531,24 +531,38 @@ function GeneralTab() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-1">
-          <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+          <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
             <input
               type="checkbox"
               checked={pinLockEnabled}
               onChange={(e) => setPinLockEnabled(e.target.checked)}
               className="rounded border-border"
             />
-            <span>Enable PIN Lock on Startup</span>
+            <span>Enable PIN Security Lock (Startup &amp; 10-Min Auto-Lock)</span>
           </label>
-          <Button
-            size="sm"
-            onClick={() => void saveSecuritySettings()}
-            loading={testingProxy}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4"
-          >
-            Save Security Settings
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              type="button"
+              onClick={() => {
+                useSettingsStore.getState().lock();
+                useToastStore.getState().push('info', 'Workspace Locked 🔒', 'Enter PIN to regain access.');
+              }}
+              className="text-xs font-semibold px-3"
+            >
+              Lock Now 🔒
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => void saveSecuritySettings()}
+              loading={testingProxy}
+              className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4"
+            >
+              Save Security Settings
+            </Button>
+          </div>
         </div>
       </section>
       {/* Groq AI (Free DeepSeek R1 & Qwen 2.5) */}

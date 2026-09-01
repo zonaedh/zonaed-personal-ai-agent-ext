@@ -204,6 +204,67 @@
   }
 }
 
+@keyframes cyber-radar {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.25;
+  }
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+@keyframes cyber-orbit {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes cyber-orbit-reverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes cyber-scan-beam {
+  0%, 100% {
+    top: 0%;
+    opacity: 0.2;
+  }
+  50% {
+    top: 90%;
+    opacity: 0.9;
+  }
+}
+
+@keyframes cyber-glow-breathe {
+  0%, 100% {
+    filter: drop-shadow(0 0 12px rgba(99, 102, 241, 0.45)) drop-shadow(0 0 24px rgba(6, 182, 212, 0.25));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.65)) drop-shadow(0 0 35px rgba(6, 182, 212, 0.45));
+    transform: scale(1.02);
+  }
+}
+
+@keyframes lock-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
 .animate-float {
   animation: float-slow 4s ease-in-out infinite;
 }
@@ -222,6 +283,34 @@
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(139, 92, 246, 0.12), rgba(6, 182, 212, 0.08));
   background-size: 200% 200%;
   animation: aurora 8s ease infinite;
+}
+
+.animate-cyber-radar {
+  animation: cyber-radar 3s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+}
+
+.animate-cyber-orbit {
+  animation: cyber-orbit 12s linear infinite;
+}
+
+.animate-cyber-orbit-fast {
+  animation: cyber-orbit 4s linear infinite;
+}
+
+.animate-cyber-orbit-reverse {
+  animation: cyber-orbit-reverse 9s linear infinite;
+}
+
+.animate-cyber-scan {
+  animation: cyber-scan-beam 2.8s ease-in-out infinite;
+}
+
+.animate-cyber-glow {
+  animation: cyber-glow-breathe 4s ease-in-out infinite;
+}
+
+.animate-shake {
+  animation: lock-shake 0.45s ease-in-out;
 }
 
 .streaming-caret::after {

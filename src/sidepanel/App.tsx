@@ -19,6 +19,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PinGate } from '@/components/auth/pin-gate';
 import { OptionsApp } from '@/options/App';
+import { useAutoLock } from '@/lib/auto-lock';
 
 /**
  * The primary UI surface (ChatGPT-style Layout).
@@ -26,6 +27,8 @@ import { OptionsApp } from '@/options/App';
  * Right: Full Canvas with Model Switcher, Messages & Floating Composer.
  */
 export function SidePanelApp() {
+  useAutoLock();
+
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const settingsReady = useSettingsStore((s) => s.ready);
