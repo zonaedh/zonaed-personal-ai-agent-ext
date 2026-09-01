@@ -1,2 +1,2 @@
-import{c as t,j as r}from"../../toaster.js";import{O as e}from"../../App.js";const o=document.getElementById("root");o&&t.createRoot(o).render(r.jsx(e,{}));
+import{c as o,j as e,O as r}from"../../App.js";const t=document.getElementById("root");t&&o.createRoot(t).render(e.jsx(r,{}));
 //# sourceMappingURL=index.js.map

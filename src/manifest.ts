@@ -59,8 +59,7 @@ export default {
     service_worker: 'src/background/index.ts',
   },
   action: {
-    default_title: 'Zonaed AI',
-    default_popup: 'src/popup/index.html',
+    default_title: 'Zonaed AI — Open Side Panel (Ctrl+Shift+Z)',
     default_icon: {
       '16': 'icons/icon16.png',
       '32': 'icons/icon32.png',

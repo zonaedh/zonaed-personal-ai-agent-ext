@@ -50,8 +50,35 @@ async function createContextMenus(): Promise<void> {
   create('ctx:ocr', 'Extract text from screenshot (OCR)', ['page', 'image', 'selection']);
 }
 
+// Automatically open the side panel when the user clicks the toolbar action icon (Chrome 116+)
+if (chrome.sidePanel?.setPanelBehavior) {
+  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch((err) => {
+    console.warn('[local-ai] setPanelBehavior error:', err);
+  });
+}
+
+// Fallback click listener to guarantee opening side panel across all Chromium versions
+chrome.action?.onClicked?.addListener((tab) => {
+  if (tab?.id !== undefined) {
+    chrome.sidePanel.open({ tabId: tab.id }).catch((err) => {
+      console.warn('[local-ai] sidePanel.open by tabId failed:', err);
+    });
+  } else {
+    chrome.windows.getLastFocused().then((win) => {
+      if (win?.id !== undefined) {
+        chrome.sidePanel.open({ windowId: win.id }).catch((err) => {
+          console.warn('[local-ai] sidePanel.open by windowId failed:', err);
+        });
+      }
+    });
+  }
+});
+
 chrome.runtime.onInstalled.addListener((details) => {
   void createContextMenus();
+  if (chrome.sidePanel?.setPanelBehavior) {
+    chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => undefined);
+  }
   if (details.reason === 'install') {
     // First run: surface the settings page so permissions/shortcuts are clear.
     void chrome.runtime.openOptionsPage();
@@ -60,6 +87,9 @@ chrome.runtime.onInstalled.addListener((details) => {
 
 chrome.runtime.onStartup.addListener(() => {
   void createContextMenus();
+  if (chrome.sidePanel?.setPanelBehavior) {
+    chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => undefined);
+  }
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
