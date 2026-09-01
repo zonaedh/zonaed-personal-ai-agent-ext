@@ -15,6 +15,7 @@ import {
   Eye,
   Bot,
   Lock,
+  Github,
 } from 'lucide-react';
 import { searchChats } from '@/db/db';
 import { openOptionsPage } from '@/lib/chrome';
@@ -242,6 +243,15 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
           </div>
 
           <div className="flex items-center gap-1">
+            <a
+              href="https://github.com/zonaedh/zonaed-personal-ai-agent-ext"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+              title="GitHub Repository"
+            >
+              <Github className="h-3.5 w-3.5" />
+            </a>
             <button
               onClick={() => openSettings()}
               className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
