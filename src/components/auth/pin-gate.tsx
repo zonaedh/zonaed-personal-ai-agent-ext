@@ -179,7 +179,7 @@ export function PinGate({ onUnlocked }: PinGateProps) {
             <span>Zonaed AI Sentinel Guard</span>
           </div>
           <h1 className="text-base font-extrabold tracking-tight text-foreground sm:text-lg">
-            Master PIN Authentication
+            Zonaed AI - Personal Assistant
           </h1>
           <p className="text-xs text-muted-foreground">
             Enter PIN to unlock your high-speed LPU AI workspace
